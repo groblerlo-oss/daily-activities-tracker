@@ -417,12 +417,20 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Add Your Own Activity</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <input type="text" id="custom-activity" placeholder="Enter a new activity" style="flex: 1;">
+                        <button onclick="addCustomActivity()" class="btn-primary btn-small">Add</button>
+                    </div>
+                    <div id="custom-activities-list" style="font-size: 13px;"></div>
+                </div>
+
+                <div class="form-group">
                     <label>About</label>
                     <p style="font-size: 13px; color: #666; line-height: 1.6;">
                         Daily Activities Tracker v1.0<br/>
                         All data stored locally in your browser.<br/>
-                        No accounts, no tracking, completely free.<br/><br/>
-                        Inspired by <a href="https://www.youtube.com/@Un.shaped" target="_blank">un.shaped</a> — small things that remind you of you.
+                        No accounts, no tracking, completely free.
                     </p>
                 </div>
             </div>
@@ -574,7 +582,8 @@
         function getTodayActivityIndex() {
             const today = getToday();
             const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0);
-            return seed % ACTIVITIES.length;
+            const allActivities = getFullActivityList();
+            return seed % allActivities.length;
         }
 
         function getTodayInspirationIndex() {
@@ -586,6 +595,11 @@
         function displayInspiration() {
             const index = getTodayInspirationIndex();
             document.getElementById('daily-inspiration').textContent = `"${INSPIRATIONS[index]}"`;
+        }
+
+        function getFullActivityList() {
+            const customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
+            return [...ACTIVITIES, ...customActivities];
         }
 
         function loadState() {
@@ -602,14 +616,60 @@
             displayInspiration();
             updateActivityDisplay();
             loadEntries();
+            loadCustomActivities();
+        }
+
+        function addCustomActivity() {
+            const input = document.getElementById('custom-activity');
+            const activity = input.value.trim();
+
+            if (!activity) {
+                alert('Please enter an activity');
+                return;
+            }
+
+            let customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
+            customActivities.push(activity);
+            localStorage.setItem('customActivities', JSON.stringify(customActivities));
+
+            input.value = '';
+            loadCustomActivities();
+        }
+
+        function deleteCustomActivity(index) {
+            if (confirm('Delete this activity?')) {
+                let customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
+                customActivities.splice(index, 1);
+                localStorage.setItem('customActivities', JSON.stringify(customActivities));
+                loadCustomActivities();
+            }
+        }
+
+        function loadCustomActivities() {
+            const customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
+            const list = document.getElementById('custom-activities-list');
+
+            if (customActivities.length === 0) {
+                list.innerHTML = '<p style="color: #999;">No custom activities yet.</p>';
+                return;
+            }
+
+            list.innerHTML = '<strong>Your Activities:</strong><br/>' + customActivities.map((activity, idx) =>
+                `<div style="padding: 8px; background: #f0f0f0; margin: 5px 0; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>${activity}</span>
+                    <button onclick="deleteCustomActivity(${idx})" class="btn-secondary btn-small" style="color: #d32f2f;">Delete</button>
+                </div>`
+            ).join('');
         }
 
         function updateActivityDisplay() {
-            document.getElementById('activity-text').textContent = ACTIVITIES[currentActivityIndex];
+            const allActivities = getFullActivityList();
+            document.getElementById('activity-text').textContent = allActivities[currentActivityIndex];
         }
 
         function nextActivity() {
-            currentActivityIndex = (currentActivityIndex + 1) % ACTIVITIES.length;
+            const allActivities = getFullActivityList();
+            currentActivityIndex = (currentActivityIndex + 1) % allActivities.length;
             updateActivityDisplay();
         }
 
@@ -670,8 +730,9 @@
             }
 
             function saveEntryWithAudio(notes, audio) {
+                const allActivities = getFullActivityList();
                 const entry = {
-                    activity: ACTIVITIES[currentActivityIndex],
+                    activity: allActivities[currentActivityIndex],
                     notes: notes,
                     audio: audio,
                     date: new Date().toISOString()
