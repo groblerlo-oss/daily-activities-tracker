@@ -115,6 +115,7 @@
                         <input type="password" id="login-password" placeholder="Password">
                     </div>
                     <button onclick="handleLogin()">Sign In</button>
+                    <button onclick="showForgotPassword()" style="background: #f0f0f0; color: #667eea; margin-top: 10px;">Forgot Password?</button>
                     <div id="login-message"></div>
                 </div>
 
@@ -317,6 +318,22 @@
                 document.getElementById('login').classList.remove('active');
                 document.getElementById('signup').classList.add('active');
             }
+        }
+
+        function showForgotPassword() {
+            const email = document.getElementById('login-email').value.trim();
+            if (!email) {
+                alert('Enter your email first');
+                return;
+            }
+
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    document.getElementById('login-message').innerHTML = '<div class="success">Password reset email sent! Check your inbox.</div>';
+                })
+                .catch((err) => {
+                    document.getElementById('login-message').innerHTML = `<div class="error">Error: ${err.message}</div>`;
+                });
         }
 
         async function handleLogin() {
