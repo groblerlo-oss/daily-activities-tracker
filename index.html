@@ -10,6 +10,26 @@
     <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Daily%20Activities%20Tracker%22,%22short_name%22:%22Activities%22,%22start_url%22:%22./index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22%23667eea%22,%22theme_color%22:%22%23667eea%22,%22scope%22:%22./%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20192%20192%27%3E%3Crect%20fill=%27%23667eea%27%20width=%27192%27%20height=%27192%27/%3E%3Ctext%20x=%2796%27%20y=%27128%27%20font-size=%2780%27%20text-anchor=%27middle%27%20fill=%27white%27%20font-family=%27Arial%27%3E🌱%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%22}]}">
     <title>Daily Activities Tracker</title>
     <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9f9f9;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --text-muted: #999;
+            --border-color: #e0e0e0;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent: #667eea;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-muted: #707070;
+            --border-color: #404040;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -20,7 +40,11 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
+            color: var(--text-primary);
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #2a2a4a 0%, #3d2a5a 100%);
         }
 
         .container {
@@ -30,11 +54,12 @@
         }
 
         .card {
-            background: white;
+            background: var(--bg-primary);
             border-radius: 12px;
             padding: 30px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             margin: 20px 0;
+            color: var(--text-primary);
         }
 
         @media (max-width: 600px) {
@@ -97,17 +122,19 @@
             font-size: 14px;
         }
 
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             font-family: inherit;
             font-size: 14px;
             transition: border-color 0.3s;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -205,11 +232,12 @@
         }
 
         .entry {
-            background: #f9f9f9;
+            background: var(--bg-secondary);
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 12px;
             border-left: 4px solid #667eea;
+            color: var(--text-primary);
         }
 
         .entry-date {
@@ -334,12 +362,205 @@
         .hidden {
             display: none;
         }
+
+        .mood-selector {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: space-around;
+        }
+
+        .mood-btn {
+            background: none;
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.2s;
+            flex: 0;
+            min-width: auto;
+        }
+
+        .mood-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .mood-btn.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.2);
+        }
+
+        .category-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        .category-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--border-color);
+            color: var(--text-primary);
+            font-size: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .category-tag:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .category-tag.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .entry-mood {
+            font-size: 20px;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        .entry-meta {
+            display: flex;
+            gap: 10px;
+            margin: 8px 0;
+            flex-wrap: wrap;
+            font-size: 12px;
+        }
+
+        .meta-badge {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 4px 8px;
+            border-radius: 12px;
+            color: var(--accent);
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 5px;
+            transition: transform 0.2s;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            color: var(--text-primary);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .time-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .time-input-group input {
+            flex: 1;
+            max-width: 100px;
+        }
+
+        .weekly-reflection {
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .weekly-reflection h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .repeat-option {
+            background: rgba(102, 126, 234, 0.05);
+            border: 2px dashed #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .repeat-option button {
+            background: #667eea;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .reminder-setup {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .reminder-time {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .reminder-time input {
+            max-width: 100px;
+        }
+
+        .reminder-status {
+            font-size: 13px;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        .reminder-status.active {
+            background: rgba(56, 142, 60, 0.1);
+            color: #388e3c;
+        }
+
+        .reminder-status.inactive {
+            background: rgba(211, 47, 47, 0.1);
+            color: #d32f2f;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Daily Activities</h1>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h1 style="margin-bottom: 0;">Daily Activities</h1>
+                <button id="theme-toggle-btn" onclick="toggleTheme()" class="theme-toggle" title="Toggle dark mode">🌙</button>
+            </div>
             <p id="daily-inspiration"></p>
             <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Small things that remind you of you</p>
         </div>
@@ -353,6 +574,8 @@
 
             <!-- TODAY TAB -->
             <div id="today-tab">
+                <div id="weekly-reflection" class="hidden"></div>
+
                 <div class="activity-box">
                     <h2>Today's Activity</h2>
                     <p id="activity-text"></p>
@@ -362,8 +585,26 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Activity Category (optional)</label>
+                    <div class="category-selector" id="category-selector"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>How long did this take? (optional, in minutes)</label>
+                    <div class="time-input-group">
+                        <input type="number" id="duration" placeholder="e.g., 30" min="1" max="999">
+                        <span style="color: var(--text-muted);">minutes</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Your Notes</label>
                     <textarea id="notes" placeholder="How did this make you feel? What did you notice?"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>How are you feeling? (optional)</label>
+                    <div class="mood-selector" id="mood-selector"></div>
                 </div>
 
                 <div class="form-group">
@@ -378,6 +619,7 @@
 
                 <div id="message"></div>
                 <button onclick="saveEntry()" class="btn-primary" style="width: 100%;">Save Entry</button>
+                <div id="repeat-option" class="hidden"></div>
             </div>
 
             <!-- HISTORY TAB -->
@@ -391,6 +633,23 @@
                         <div class="stat-number" id="streak">0</div>
                         <div class="stat-label">Day Streak</div>
                     </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="avg-mood">-</div>
+                        <div class="stat-label">Average Mood</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="total-time">0h</div>
+                        <div class="stat-label">Total Time</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px;">Most Done Activities</h3>
+                    <div id="top-activities" style="font-size: 13px;"></div>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search entries by date or keywords...">
                 </div>
 
                 <h3>Recent Entries</h3>
@@ -399,6 +658,19 @@
 
             <!-- SETTINGS TAB -->
             <div id="settings-tab" class="hidden">
+                <div class="form-group">
+                    <label>Daily Reminders</label>
+                    <div class="reminder-setup">
+                        <div class="reminder-time">
+                            <label style="margin-bottom: 0; flex: 0;">Time:</label>
+                            <input type="time" id="reminder-time" value="09:00">
+                        </div>
+                        <button onclick="enableReminder()" class="btn-primary" style="width: 100%;">Enable Reminder</button>
+                        <button onclick="disableReminder()" class="btn-secondary" style="width: 100%; margin-top: 8px;">Disable Reminder</button>
+                        <div id="reminder-status-msg" class="reminder-status inactive">Reminders are off</div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Data Management</label>
                     <div class="controls">
@@ -438,6 +710,198 @@
     </div>
 
     <script>
+        // Dark mode
+        const MOODS = ['😢', '😕', '😐', '😊', '😄'];
+        const CATEGORIES = ['Physical', 'Creative', 'Social', 'Self-Care', 'Learning', 'Other'];
+        const CATEGORY_COLORS = {
+            'Physical': '#FF6B6B',
+            'Creative': '#4ECDC4',
+            'Social': '#45B7D1',
+            'Self-Care': '#FFA07A',
+            'Learning': '#98D8C8',
+            'Other': '#B19CD9'
+        };
+
+        let selectedMood = null;
+        let selectedCategory = null;
+        let currentActivityIndex = 0;
+        let mediaRecorder = null;
+        let audioBlob = null;
+
+        function initTheme() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                updateThemeToggle();
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            updateThemeToggle();
+        }
+
+        function updateThemeToggle() {
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('theme-toggle-btn').textContent = isDark ? '☀️' : '🌙';
+        }
+
+        function initMoodSelector() {
+            const container = document.getElementById('mood-selector');
+            container.innerHTML = MOODS.map((mood, idx) =>
+                `<button class="mood-btn" onclick="selectMood(${idx})" title="${mood}">${mood}</button>`
+            ).join('');
+        }
+
+        function selectMood(idx) {
+            selectedMood = idx;
+            document.querySelectorAll('.mood-btn').forEach((btn, i) => {
+                btn.classList.toggle('selected', i === idx);
+            });
+        }
+
+        function initCategorySelector() {
+            const container = document.getElementById('category-selector');
+            container.innerHTML = CATEGORIES.map(cat =>
+                `<button class="category-tag" onclick="selectCategory('${cat}')">${cat}</button>`
+            ).join('');
+        }
+
+        function selectCategory(cat) {
+            selectedCategory = selectedCategory === cat ? null : cat;
+            document.querySelectorAll('.category-tag').forEach(btn => {
+                btn.classList.toggle('selected', btn.textContent === selectedCategory);
+            });
+        }
+
+        function showWeeklyReflection() {
+            const today = new Date();
+            if (today.getDay() === 0) {
+                const reflection = document.getElementById('weekly-reflection');
+                reflection.innerHTML = `
+                    <div class="weekly-reflection">
+                        <h3>Weekly Reflection</h3>
+                        <textarea id="reflection-input" placeholder="How was your week? What did you notice about yourself?" style="width: 100%; margin-top: 10px;"></textarea>
+                        <button onclick="saveReflection()" class="btn-primary" style="width: 100%; margin-top: 10px;">Save Reflection</button>
+                    </div>
+                `;
+                reflection.classList.remove('hidden');
+            }
+        }
+
+        function saveReflection() {
+            const reflectionText = document.getElementById('reflection-input').value.trim();
+            if (reflectionText) {
+                const reflections = JSON.parse(localStorage.getItem('reflections') || '{}');
+                const today = getToday();
+                reflections[today] = reflectionText;
+                localStorage.setItem('reflections', JSON.stringify(reflections));
+                showMessage('✓ Reflection saved!', 'success');
+                document.getElementById('weekly-reflection').classList.add('hidden');
+            }
+        }
+
+        // Reminders
+        function enableReminder() {
+            const time = document.getElementById('reminder-time').value;
+            if (!time) {
+                showMessage('Please set a time', 'error');
+                return;
+            }
+
+            localStorage.setItem('reminderEnabled', 'true');
+            localStorage.setItem('reminderTime', time);
+            document.getElementById('reminder-status-msg').textContent = `Reminders enabled at ${time}`;
+            document.getElementById('reminder-status-msg').className = 'reminder-status active';
+            showMessage('✓ Reminder enabled', 'success');
+            scheduleReminder();
+        }
+
+        function disableReminder() {
+            localStorage.setItem('reminderEnabled', 'false');
+            document.getElementById('reminder-status-msg').textContent = 'Reminders are off';
+            document.getElementById('reminder-status-msg').className = 'reminder-status inactive';
+            showMessage('✓ Reminder disabled', 'success');
+        }
+
+        function scheduleReminder() {
+            if (!('Notification' in window)) return;
+
+            if (Notification.permission === 'granted') {
+                checkAndShowReminder();
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(() => checkAndShowReminder());
+            }
+        }
+
+        function checkAndShowReminder() {
+            const enabled = localStorage.getItem('reminderEnabled') === 'true';
+            const reminderTime = localStorage.getItem('reminderTime');
+            if (!enabled || !reminderTime) return;
+
+            const checkInterval = setInterval(() => {
+                const now = new Date();
+                const [hours, minutes] = reminderTime.split(':');
+                if (now.getHours() === parseInt(hours) && now.getMinutes() === parseInt(minutes)) {
+                    new Notification('Daily Activity Time!', {
+                        body: 'Time to log your daily activity',
+                        icon: 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect fill=%27%23667eea%27 width=%27192%27 height=%27192%27/%3E%3Ctext x=%2796%27 y=%27128%27 font-size=%2780%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27Arial%27%3E🌱%3C/text%3E%3C/svg%3E'
+                    });
+                    clearInterval(checkInterval);
+                }
+            }, 60000);
+        }
+
+        // Favorite activities
+        function toggleFavorite(activityName) {
+            let favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
+            if (!favorites[activityName]) {
+                favorites[activityName] = 1;
+            } else {
+                favorites[activityName]++;
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+
+        function getFavoriteFrequency(activityName) {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
+            return favorites[activityName] || 1;
+        }
+
+        function isFavorite(activityName) {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
+            return favorites[activityName] && favorites[activityName] > 1;
+        }
+
+        function getToday() {
+            return new Date().toDateString();
+        }
+
+        function getTodayActivityIndex() {
+            const today = getToday();
+            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0);
+            const allActivities = getFullActivityList();
+
+            // Expand list with favorite activities (2x frequency)
+            const expandedList = [];
+            allActivities.forEach(activity => {
+                expandedList.push(activity);
+                if (isFavorite(activity)) {
+                    expandedList.push(activity);
+                }
+            });
+
+            return seed % expandedList.length;
+        }
+
+        function getTodayInspirationIndex() {
+            const today = getToday();
+            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0) * 7;
+            return seed % INSPIRATIONS.length;
+        }
+
         const INSPIRATIONS = [
             "Small steps lead to big changes.",
             "Today is a chance to remember who you are.",
@@ -575,23 +1039,6 @@
         let mediaRecorder = null;
         let audioBlob = null;
 
-        function getToday() {
-            return new Date().toDateString();
-        }
-
-        function getTodayActivityIndex() {
-            const today = getToday();
-            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0);
-            const allActivities = getFullActivityList();
-            return seed % allActivities.length;
-        }
-
-        function getTodayInspirationIndex() {
-            const today = getToday();
-            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0) * 7;
-            return seed % INSPIRATIONS.length;
-        }
-
         function displayInspiration() {
             const index = getTodayInspirationIndex();
             document.getElementById('daily-inspiration').textContent = `"${INSPIRATIONS[index]}"`;
@@ -600,6 +1047,18 @@
         function getFullActivityList() {
             const customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
             return [...ACTIVITIES, ...customActivities];
+        }
+
+        function getExpandedActivityList() {
+            const allActivities = getFullActivityList();
+            const expandedList = [];
+            allActivities.forEach(activity => {
+                expandedList.push(activity);
+                if (isFavorite(activity)) {
+                    expandedList.push(activity);
+                }
+            });
+            return expandedList;
         }
 
         function loadState() {
@@ -613,10 +1072,51 @@
 
             currentActivityIndex = state.currentActivityIndex || getTodayActivityIndex();
             localStorage.setItem('appState', JSON.stringify(state));
+
+            initTheme();
+            initMoodSelector();
+            initCategorySelector();
             displayInspiration();
             updateActivityDisplay();
             loadEntries();
             loadCustomActivities();
+            showWeeklyReflection();
+            updateReminderStatus();
+
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', loadEntries);
+            }
+
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+
+            const reminderEnabled = localStorage.getItem('reminderEnabled') === 'true';
+            if (reminderEnabled) {
+                scheduleReminder();
+            }
+        }
+
+        function updateReminderStatus() {
+            const enabled = localStorage.getItem('reminderEnabled') === 'true';
+            const time = localStorage.getItem('reminderTime') || '09:00';
+            const statusMsg = document.getElementById('reminder-status-msg');
+            const timeInput = document.getElementById('reminder-time');
+
+            if (timeInput) {
+                timeInput.value = time;
+            }
+
+            if (statusMsg) {
+                if (enabled) {
+                    statusMsg.textContent = `Reminders enabled at ${time}`;
+                    statusMsg.className = 'reminder-status active';
+                } else {
+                    statusMsg.textContent = 'Reminders are off';
+                    statusMsg.className = 'reminder-status inactive';
+                }
+            }
         }
 
         function addCustomActivity() {
@@ -663,14 +1163,18 @@
         }
 
         function updateActivityDisplay() {
-            const allActivities = getFullActivityList();
-            document.getElementById('activity-text').textContent = allActivities[currentActivityIndex];
+            const expandedActivities = getExpandedActivityList();
+            if (expandedActivities.length > 0) {
+                document.getElementById('activity-text').textContent = expandedActivities[currentActivityIndex % expandedActivities.length];
+            }
         }
 
         function nextActivity() {
-            const allActivities = getFullActivityList();
-            currentActivityIndex = (currentActivityIndex + 1) % allActivities.length;
-            updateActivityDisplay();
+            const expandedActivities = getExpandedActivityList();
+            if (expandedActivities.length > 0) {
+                currentActivityIndex = (currentActivityIndex + 1) % expandedActivities.length;
+                updateActivityDisplay();
+            }
         }
 
         async function startRecording() {
@@ -716,71 +1220,189 @@
             }
 
             const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+            const duration = document.getElementById('duration').value ? parseInt(document.getElementById('duration').value) : null;
 
             let audioBase64 = null;
             if (audioBlob) {
                 const reader = new FileReader();
                 reader.onload = function() {
                     audioBase64 = reader.result;
-                    saveEntryWithAudio(notes, audioBase64);
+                    saveEntryWithAudio(notes, audioBase64, duration);
                 };
                 reader.readAsDataURL(audioBlob);
             } else {
-                saveEntryWithAudio(notes, null);
+                saveEntryWithAudio(notes, null, duration);
             }
 
-            function saveEntryWithAudio(notes, audio) {
+            function saveEntryWithAudio(notes, audio, duration) {
                 const allActivities = getFullActivityList();
+                const activityName = allActivities[currentActivityIndex];
                 const entry = {
-                    activity: allActivities[currentActivityIndex],
+                    activity: activityName,
                     notes: notes,
                     audio: audio,
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
+                    mood: selectedMood,
+                    category: selectedCategory,
+                    duration: duration
                 };
 
                 entries.push(entry);
                 localStorage.setItem('entries', JSON.stringify(entries));
+                toggleFavorite(activityName);
 
                 document.getElementById('notes').value = '';
+                document.getElementById('duration').value = '';
                 audioBlob = null;
                 document.getElementById('audio-playback').innerHTML = '';
+                selectedMood = null;
+                selectedCategory = null;
+
+                initMoodSelector();
+                initCategorySelector();
+
                 showMessage('✓ Entry saved!', 'success');
+
+                // Show repeat option
+                showRepeatOption(activityName);
                 loadEntries();
             }
         }
 
+        function showRepeatOption(activityName) {
+            const repeatDiv = document.getElementById('repeat-option');
+            repeatDiv.innerHTML = `
+                <div class="repeat-option">
+                    <p>Awesome! Want to do the same activity again?</p>
+                    <button onclick="repeatActivity('${activityName.replace(/'/g, "\\'")}')" class="btn-primary">Repeat Activity</button>
+                </div>
+            `;
+            repeatDiv.classList.remove('hidden');
+            setTimeout(() => repeatDiv.classList.add('hidden'), 8000);
+        }
+
+        function repeatActivity(activityName) {
+            const allActivities = getFullActivityList();
+            currentActivityIndex = allActivities.indexOf(activityName);
+            updateActivityDisplay();
+            document.getElementById('repeat-option').classList.add('hidden');
+            document.getElementById('notes').focus();
+            showMessage('✓ Ready for another round!', 'success');
+        }
+
         function loadEntries() {
             const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+            let filteredEntries = entries;
+
+            const searchInput = document.getElementById('search-input');
+            if (searchInput && searchInput.value.trim()) {
+                const query = searchInput.value.toLowerCase();
+                filteredEntries = entries.filter(entry => {
+                    const dateStr = new Date(entry.date).toLocaleDateString().toLowerCase();
+                    const activity = entry.activity.toLowerCase();
+                    const notes = (entry.notes || '').toLowerCase();
+                    return dateStr.includes(query) || activity.includes(query) || notes.includes(query);
+                });
+            }
+
             const entriesList = document.getElementById('entries-list');
 
             if (entries.length === 0) {
                 entriesList.innerHTML = '<div class="no-entries">No entries yet. Start by completing an activity!</div>';
                 document.getElementById('total-entries').textContent = '0';
                 document.getElementById('streak').textContent = '0';
+                document.getElementById('avg-mood').textContent = '-';
+                document.getElementById('total-time').textContent = '0h';
+                document.getElementById('top-activities').innerHTML = '';
                 return;
             }
 
             document.getElementById('total-entries').textContent = entries.length;
             document.getElementById('streak').textContent = calculateStreak(entries);
+            document.getElementById('avg-mood').textContent = calculateAverageMood(entries);
+            document.getElementById('total-time').textContent = calculateTotalTime(entries);
+            updateTopActivities(entries);
 
-            entriesList.innerHTML = entries
+            if (filteredEntries.length === 0) {
+                entriesList.innerHTML = '<div class="no-entries">No entries match your search.</div>';
+                return;
+            }
+
+            entriesList.innerHTML = filteredEntries
                 .reverse()
                 .map((entry, idx) => {
                     const date = new Date(entry.date);
                     const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
                     const audioHtml = entry.audio ? `<audio controls src="${entry.audio}"></audio>` : '';
+                    const moodEmoji = entry.mood !== null ? MOODS[entry.mood] : '';
+                    const categoryBadge = entry.category ? `<span class="meta-badge" style="background: ${CATEGORY_COLORS[entry.category]}20; color: ${CATEGORY_COLORS[entry.category]};">${entry.category}</span>` : '';
+                    const durationBadge = entry.duration ? `<span class="meta-badge">${entry.duration} min</span>` : '';
+                    const isFav = isFavorite(entry.activity);
+                    const actualIdx = entries.length - 1 - (filteredEntries.length - 1 - idx);
 
                     return `
                         <div class="entry">
                             <div class="entry-date">${dateStr}</div>
-                            <div class="entry-activity">${entry.activity}</div>
+                            <div class="entry-activity">
+                                ${entry.activity}
+                                <button class="favorite-btn" onclick="toggleFavoriteEntry('${entry.activity.replace(/'/g, "\\'")}')" title="Add to favorites">${isFav ? '❤️' : '🤍'}</button>
+                                ${moodEmoji ? `<span class="entry-mood">${moodEmoji}</span>` : ''}
+                            </div>
+                            <div class="entry-meta">${categoryBadge}${durationBadge}</div>
                             <div class="entry-text">${entry.notes}</div>
                             ${audioHtml}
-                            <div class="delete-entry" onclick="deleteEntry(${entries.length - 1 - idx})">Delete</div>
+                            <div class="delete-entry" onclick="deleteEntry(${actualIdx})">Delete</div>
                         </div>
                     `;
                 })
                 .join('');
+        }
+
+        function toggleFavoriteEntry(activityName) {
+            const allActivities = getFullActivityList();
+            if (allActivities.includes(activityName)) {
+                toggleFavorite(activityName);
+                loadEntries();
+            }
+        }
+
+        function calculateAverageMood(entries) {
+            const moods = entries.filter(e => e.mood !== null && e.mood !== undefined).map(e => e.mood);
+            if (moods.length === 0) return '-';
+            const avg = moods.reduce((a, b) => a + b, 0) / moods.length;
+            return MOODS[Math.round(avg)] || '-';
+        }
+
+        function calculateTotalTime(entries) {
+            const totalMinutes = entries.reduce((sum, e) => sum + (e.duration || 0), 0);
+            const hours = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+            return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+        }
+
+        function updateTopActivities(entries) {
+            const activityCount = {};
+            entries.forEach(e => {
+                activityCount[e.activity] = (activityCount[e.activity] || 0) + 1;
+            });
+
+            const sorted = Object.entries(activityCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const topDiv = document.getElementById('top-activities');
+            if (sorted.length === 0) {
+                topDiv.innerHTML = '';
+                return;
+            }
+
+            topDiv.innerHTML = sorted.map(([activity, count]) => {
+                const isFav = isFavorite(activity);
+                return `<div style="padding: 8px; background: var(--bg-secondary); margin: 5px 0; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>${activity} (${count})</span>
+                    <span style="font-size: 12px; color: var(--text-muted);">${isFav ? '❤️ Favorite' : ''}</span>
+                </div>`;
+            }).join('');
         }
 
         function calculateStreak(entries) {
