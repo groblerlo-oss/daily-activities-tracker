@@ -143,15 +143,21 @@
                 <p id="user-email" style="text-align: center; margin-bottom: 20px; color: #667eea; font-size: 14px;"></p>
 
                 <div class="activity-box">
+                    <div style="font-size: 12px; opacity: 0.8; margin-bottom: 15px; font-style: italic;" id="quote-text"></div>
                     <div style="font-size: 14px; opacity: 0.9; margin-bottom: 10px;">Today's Activity</div>
                     <div class="activity-text" id="activity-text">Loading...</div>
-                    <button style="margin-top: 15px; padding: 10px; font-size: 14px; min-height: 40px;" onclick="getNextActivity()">Next</button>
+                    <button style="margin-top: 15px; padding: 10px; font-size: 14px; min-height: 40px;" onclick="getNextActivity()">Next Activity</button>
                 </div>
 
                 <div class="form-group">
                     <label>Your Notes</label>
                     <textarea id="notes" placeholder="How did this make you feel?"></textarea>
                 </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button id="record-btn" onclick="toggleRecording()" style="flex: 1; background: #f0f0f0; color: #333;">🎙️ Record Voice Memo</button>
+                </div>
+                <div id="recording-status" style="text-align: center; font-size: 12px; color: #999; margin-bottom: 10px;"></div>
 
                 <button onclick="saveEntry()">Save Entry</button>
                 <div id="app-message"></div>
@@ -211,13 +217,35 @@
             "Play with a pet"
         ];
 
+        const QUOTES = [
+            "The only way to do great work is to love what you do.",
+            "You are capable of more than you know.",
+            "Small progress is still progress.",
+            "Take care of yourself like you would a good friend.",
+            "Every moment is a new beginning.",
+            "Be kind to yourself today.",
+            "You deserve rest and joy.",
+            "Growth happens outside your comfort zone.",
+            "Your potential is limitless.",
+            "Focus on what you can control."
+        ];
+
         let currentUser = null;
         let currentActivityIndex = 0;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
 
         function getTodayActivityIndex() {
             const today = new Date().toDateString();
             const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0);
             return seed % ACTIVITIES.length;
+        }
+
+        function getTodayQuoteIndex() {
+            const today = new Date().toDateString();
+            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0);
+            return seed % QUOTES.length;
         }
 
         function getNextActivity() {
@@ -228,6 +256,8 @@
         function updateActivityDisplay() {
             currentActivityIndex = getTodayActivityIndex();
             document.getElementById('activity-text').textContent = ACTIVITIES[currentActivityIndex];
+            const quoteIndex = getTodayQuoteIndex();
+            document.getElementById('quote-text').textContent = `"${QUOTES[quoteIndex]}"`;
         }
 
         function showAuthView() {
@@ -241,6 +271,47 @@
             document.getElementById('user-email').textContent = `Logged in as: ${currentUser.email}`;
             updateActivityDisplay();
             loadEntries();
+        }
+
+        async function toggleRecording() {
+            if (!isRecording) {
+                // Start recording
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                        const url = URL.createObjectURL(audioBlob);
+                        const audio = new Audio(url);
+                        document.getElementById('notes').value += `\n[Voice memo recorded - ${new Date().toLocaleTimeString()}]`;
+                        document.getElementById('recording-status').textContent = '✓ Voice memo recorded!';
+                        setTimeout(() => document.getElementById('recording-status').textContent = '', 3000);
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    document.getElementById('record-btn').style.background = '#ff6b6b';
+                    document.getElementById('record-btn').style.color = 'white';
+                    document.getElementById('recording-status').textContent = '🔴 Recording...';
+                } catch (err) {
+                    document.getElementById('recording-status').textContent = '❌ Microphone access denied';
+                }
+            } else {
+                // Stop recording
+                if (mediaRecorder) {
+                    mediaRecorder.stop();
+                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                    isRecording = false;
+                    document.getElementById('record-btn').style.background = '#f0f0f0';
+                    document.getElementById('record-btn').style.color = '#333';
+                }
+            }
         }
 
         async function logout() {
@@ -263,8 +334,10 @@
             }
 
             try {
+                console.log('Saving entry for user:', currentUser.uid);
                 const timestamp = new Date().getTime();
-                await db.ref(`users/${currentUser.uid}/entries/${timestamp}`).set({
+                const entryRef = db.ref(`users/${currentUser.uid}/entries/${timestamp}`);
+                await entryRef.set({
                     activity: ACTIVITIES[currentActivityIndex],
                     notes: notes,
                     timestamp: timestamp,
@@ -272,10 +345,11 @@
                 });
 
                 document.getElementById('notes').value = '';
-                msg.innerHTML = '<div class="success">Entry saved!</div>';
+                msg.innerHTML = '<div class="success">✓ Entry saved!</div>';
                 setTimeout(() => msg.innerHTML = '', 3000);
                 loadEntries();
             } catch (err) {
+                console.error('Save error:', err);
                 msg.innerHTML = `<div class="error">Error: ${err.message}</div>`;
             }
         }
