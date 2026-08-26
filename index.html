@@ -1224,14 +1224,14 @@
             const isDark = localStorage.getItem('darkMode') === 'true';
             if (isDark) {
                 document.body.classList.add('dark-mode');
-                updateThemeToggle();
             }
+            updateThemeToggle();
         }
 
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDark);
+            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
             updateThemeToggle();
         }
 
@@ -1527,10 +1527,6 @@
             "Do something that makes you feel free"
         ];
 
-        let currentActivityIndex = 0;
-        let mediaRecorder = null;
-        let audioBlob = null;
-
         function displayInspiration() {
             const index = getTodayInspirationIndex();
             document.getElementById('daily-inspiration').textContent = `"${INSPIRATIONS[index]}"`;
@@ -1727,8 +1723,8 @@
             }
 
             function saveEntryWithAudio(notes, audio, duration) {
-                const allActivities = getFullActivityList();
-                const activityName = allActivities[currentActivityIndex];
+                const expandedActivities = getExpandedActivityList();
+                const activityName = expandedActivities[currentActivityIndex % expandedActivities.length];
                 const entry = {
                     activity: activityName,
                     notes: notes,
@@ -1774,8 +1770,12 @@
         }
 
         function repeatActivity(activityName) {
-            const allActivities = getFullActivityList();
-            currentActivityIndex = allActivities.indexOf(activityName);
+            const expandedActivities = getExpandedActivityList();
+            currentActivityIndex = expandedActivities.indexOf(activityName);
+            if (currentActivityIndex === -1) {
+                const allActivities = getFullActivityList();
+                currentActivityIndex = allActivities.indexOf(activityName);
+            }
             updateActivityDisplay();
             document.getElementById('repeat-option').classList.add('hidden');
             document.getElementById('notes').focus();
@@ -1934,8 +1934,12 @@
             document.querySelectorAll('[id$="-tab"]').forEach(el => el.classList.add('hidden'));
             document.getElementById(tab + '-tab').classList.remove('hidden');
 
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.tab').forEach(el => {
+                el.classList.remove('active');
+                if (el.textContent.includes(tab === 'today' ? "Today's" : tab === 'history' ? "History" : "Settings")) {
+                    el.classList.add('active');
+                }
+            });
         }
 
         function exportData() {
