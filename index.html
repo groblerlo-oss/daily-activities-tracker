@@ -6,7 +6,7 @@
     <title>Daily Activities Tracker</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -68,7 +68,6 @@
         .error { color: #d32f2f; font-size: 13px; margin-top: 10px; }
         .success { color: #388e3c; font-size: 13px; margin-top: 10px; }
         .hidden { display: none; }
-        #app-content { padding-top: 20px; }
         .activity-box {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -95,7 +94,7 @@
         .entry { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea; }
         .entry-date { font-size: 12px; color: #999; margin-bottom: 5px; }
         .entry-activity { font-weight: 600; color: #667eea; margin-bottom: 8px; }
-        .entry-notes { font-size: 14px; color: #555; margin-bottom: 8px; }
+        .entry-notes { font-size: 14px; color: #555; }
     </style>
 </head>
 <body>
@@ -132,11 +131,11 @@
                     </div>
                     <div class="form-group">
                         <label>Password</label>
-                        <input type="password" id="signup-password" placeholder="Password (min 6 chars)">
+                        <input type="password" id="signup-password" placeholder="Password (min 6)">
                     </div>
                     <div class="form-group">
                         <label>Confirm Password</label>
-                        <input type="password" id="signup-confirm" placeholder="Confirm Password">
+                        <input type="password" id="signup-confirm" placeholder="Confirm">
                     </div>
                     <button id="signup-btn">Create Account</button>
                     <div id="signup-message"></div>
@@ -172,18 +171,35 @@
     </div>
 
     <script>
+        // Wait for Firebase to load
+        function waitForFirebase() {
+            return new Promise((resolve) => {
+                if (window.firebase) {
+                    resolve();
+                } else {
+                    setTimeout(() => waitForFirebase().then(resolve), 100);
+                }
+            });
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyA-Sw7_7Tp8B1mvhTuuXroK00xagv9pxo4",
             authDomain: "things-11510.firebaseapp.com",
             projectId: "things-11510",
             storageBucket: "things-11510.firebasestorage.app",
             messagingSenderId: "626185939822",
-            appId: "1:626185939822:web:2df605b0b14c710df1af7f"
+            appId: "1:626185939822:web:2df605b0b14c710df1af7f",
+            databaseURL: "https://things-11510-default-rtdb.firebaseio.com"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        waitForFirebase().then(() => {
+            firebase.initializeApp(firebaseConfig);
+        });
+        let auth, db;
+        waitForFirebase().then(() => {
+            auth = firebase.auth();
+            db = firebase.database();
+        });
 
         const ACTIVITIES = [
             "Take a walk outside without your phone",
@@ -256,10 +272,11 @@
             }
 
             try {
-                await db.collection('users').doc(currentUser.uid).collection('entries').add({
+                const timestamp = new Date().getTime();
+                await db.ref(`users/${currentUser.uid}/entries/${timestamp}`).set({
                     activity: ACTIVITIES[currentActivityIndex],
                     notes: notes,
-                    timestamp: new Date(),
+                    timestamp: timestamp,
                     date: new Date().toDateString()
                 });
 
@@ -272,34 +289,31 @@
             }
         }
 
-        async function loadEntries() {
+        function loadEntries() {
             const entriesList = document.getElementById('entries-list');
 
-            try {
-                const snapshot = await db.collection('users').doc(currentUser.uid).collection('entries')
-                    .orderBy('timestamp', 'desc')
-                    .limit(10)
-                    .get();
-
-                if (snapshot.empty) {
+            db.ref(`users/${currentUser.uid}/entries`).orderByChild('timestamp').limitToLast(10).on('value', (snapshot) => {
+                if (!snapshot.exists()) {
                     entriesList.innerHTML = '<p style="text-align: center; color: #999;">No entries yet</p>';
                     return;
                 }
 
-                entriesList.innerHTML = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    const date = data.timestamp.toDate();
+                const entries = [];
+                snapshot.forEach((child) => {
+                    entries.unshift(child.val());
+                });
+
+                entriesList.innerHTML = entries.map(entry => {
+                    const date = new Date(entry.timestamp);
                     return `
                         <div class="entry">
                             <div class="entry-date">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</div>
-                            <div class="entry-activity">${data.activity}</div>
-                            <div class="entry-notes">${data.notes}</div>
+                            <div class="entry-activity">${entry.activity}</div>
+                            <div class="entry-notes">${entry.notes}</div>
                         </div>
                     `;
                 }).join('');
-            } catch (err) {
-                entriesList.innerHTML = `<p style="color: #d32f2f; font-size: 13px;">${err.message}</p>`;
-            }
+            });
         }
 
         // Tab switching
