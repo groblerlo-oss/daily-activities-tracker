@@ -1299,26 +1299,26 @@
             <p>Cloud-synced activity tracking. Use on all your devices.</p>
 
             <div class="login-tabs">
-                <button class="login-tab active" onclick="switchLoginTab('login')">Login</button>
-                <button class="login-tab" onclick="switchLoginTab('signup')">Sign Up</button>
+                <button type="button" class="login-tab active" onclick="switchLoginTab('login')" style="cursor: pointer; pointer-events: auto;">Login</button>
+                <button type="button" class="login-tab" onclick="switchLoginTab('signup')" style="cursor: pointer; pointer-events: auto;">Sign Up</button>
             </div>
 
             <div id="login-form" class="login-form active">
-                <div id="login-error" class="auth-error hidden"></div>
-                <input type="email" id="login-email" placeholder="Your email" autocomplete="email">
-                <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password">
-                <button onclick="handleLogin()" id="login-btn">Login</button>
+                <div id="login-error" class="auth-error hidden" style="display: none;"></div>
+                <input type="email" id="login-email" placeholder="Your email" autocomplete="email" required aria-label="Email address">
+                <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password" required aria-label="Password">
+                <button type="button" onclick="handleLogin()" id="login-btn" style="cursor: pointer; pointer-events: auto;">Login</button>
                 <p style="font-size: 12px; color: #999; text-align: center; margin-top: 15px;">
                     Demo: Use any email/password to test (will create account)
                 </p>
             </div>
 
             <div id="signup-form" class="login-form">
-                <div id="signup-error" class="auth-error hidden"></div>
-                <input type="email" id="signup-email" placeholder="Your email" autocomplete="email">
-                <input type="password" id="signup-password" placeholder="Choose a password (min 6 chars)" autocomplete="new-password">
-                <input type="password" id="signup-confirm" placeholder="Confirm password" autocomplete="new-password">
-                <button onclick="handleSignup()" id="signup-btn">Create Account</button>
+                <div id="signup-error" class="auth-error hidden" style="display: none;"></div>
+                <input type="email" id="signup-email" placeholder="Your email" autocomplete="email" required aria-label="Email address">
+                <input type="password" id="signup-password" placeholder="Choose a password (min 6 chars)" autocomplete="new-password" required aria-label="Password">
+                <input type="password" id="signup-confirm" placeholder="Confirm password" autocomplete="new-password" required aria-label="Confirm password">
+                <button type="button" onclick="handleSignup()" id="signup-btn" style="cursor: pointer; pointer-events: auto;">Create Account</button>
                 <p style="font-size: 12px; color: #999; text-align: center; margin-top: 15px;">
                     Your data stays private and encrypted
                 </p>
@@ -1534,6 +1534,27 @@
             'Other': '#B19CD9'
         };
 
+        // WAIT FOR SUPABASE LIBRARY TO LOAD
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabase && window.supabase.createClient) {
+                    resolve();
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabase && window.supabase.createClient) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                    // Timeout after 5 seconds
+                    setTimeout(() => {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }, 5000);
+                }
+            });
+        }
+
         const INSPIRATIONS = [
             "Small steps lead to big changes.",
             "Today is a chance to remember who you are.",
@@ -1680,23 +1701,63 @@
 
         // INITIALIZATION
         async function initApp() {
-            await checkSupabaseConfig();
-            const session = await getSession();
-            if (session) {
-                currentUser = session.user;
-                showAppScreen();
-                loadState();
-                startAutoSync();
-            } else {
+            console.log('Initializing app...');
+            showLoadingState();
+
+            try {
+                await checkSupabaseConfig();
+                const session = await getSession();
+                if (session) {
+                    currentUser = session.user;
+                    showAppScreen();
+                    loadState();
+                    startAutoSync();
+                } else {
+                    showLoginScreen();
+                }
+            } catch (err) {
+                console.error('Init error:', err);
                 showLoginScreen();
             }
         }
 
+        function showLoadingState() {
+            const loginScreen = document.getElementById('login-screen');
+            if (loginScreen && !loginScreen.classList.contains('hidden')) {
+                const existingLoader = loginScreen.querySelector('.login-loader');
+                if (!existingLoader) {
+                    const loader = document.createElement('div');
+                    loader.className = 'login-loader';
+                    loader.innerHTML = '<div style="text-align: center; padding: 40px;"><div style="font-size: 14px; color: #666;">Loading...</div></div>';
+                    loginScreen.appendChild(loader);
+                }
+            }
+        }
+
+        function hideLoadingState() {
+            const loginScreen = document.getElementById('login-screen');
+            if (loginScreen) {
+                const loader = loginScreen.querySelector('.login-loader');
+                if (loader) {
+                    loader.remove();
+                }
+            }
+        }
+
         async function checkSupabaseConfig() {
-            // Use embedded credentials - app is pre-configured
+            // Wait for Supabase library to load from CDN
+            await waitForSupabase();
+
             try {
+                if (!window.supabase || !window.supabase.createClient) {
+                    console.warn('Supabase library not available');
+                    supabase = null;
+                    return;
+                }
+
                 const { createClient } = window.supabase;
                 supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase initialized successfully');
             } catch (err) {
                 console.error('Failed to initialize Supabase:', err);
                 supabase = null;
@@ -1742,8 +1803,15 @@
             const btn = document.getElementById('login-btn');
             const errorEl = document.getElementById('login-error');
 
+            console.log('Login attempt for:', email);
+
             if (!email || !password) {
                 showAuthError('Please enter email and password', errorEl);
+                return;
+            }
+
+            if (!email.includes('@')) {
+                showAuthError('Please enter a valid email address', errorEl);
                 return;
             }
 
@@ -1752,7 +1820,7 @@
 
             try {
                 if (!supabase) {
-                    showAuthError('Supabase not configured. Go to Setup tab.', errorEl);
+                    showAuthError('Auth system not ready. Please refresh the page.', errorEl);
                     btn.disabled = false;
                     btn.textContent = 'Login';
                     return;
@@ -1765,10 +1833,12 @@
                     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
                     if (signUpError) throw signUpError;
                     currentUser = signUpData.user;
+                    console.log('Account created and logged in');
                 } else if (error) {
                     throw error;
                 } else {
                     currentUser = data.user;
+                    console.log('Logged in successfully');
                 }
 
                 await createUserTables();
@@ -1777,7 +1847,8 @@
                 startAutoSync();
 
             } catch (err) {
-                showAuthError(err.message || 'Login failed', errorEl);
+                console.error('Login error:', err);
+                showAuthError(err.message || 'Login failed. Please try again.', errorEl);
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Login';
@@ -1791,8 +1862,15 @@
             const btn = document.getElementById('signup-btn');
             const errorEl = document.getElementById('signup-error');
 
+            console.log('Signup attempt for:', email);
+
             if (!email || !password || !confirm) {
                 showAuthError('Please fill in all fields', errorEl);
+                return;
+            }
+
+            if (!email.includes('@')) {
+                showAuthError('Please enter a valid email address', errorEl);
                 return;
             }
 
@@ -1811,7 +1889,7 @@
 
             try {
                 if (!supabase) {
-                    showAuthError('Supabase not configured', errorEl);
+                    showAuthError('Auth system not ready. Please refresh the page.', errorEl);
                     btn.disabled = false;
                     btn.textContent = 'Create Account';
                     return;
@@ -1821,13 +1899,15 @@
                 if (error) throw error;
 
                 currentUser = data.user;
+                console.log('Account created successfully');
                 await createUserTables();
                 showAppScreen();
                 loadState();
                 startAutoSync();
 
             } catch (err) {
-                showAuthError(err.message || 'Signup failed', errorEl);
+                console.error('Signup error:', err);
+                showAuthError(err.message || 'Signup failed. Please try again.', errorEl);
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Create Account';
@@ -1835,9 +1915,19 @@
         }
 
         function showAuthError(msg, element) {
+            if (!element) {
+                console.error('Error element not found:', msg);
+                alert(msg);
+                return;
+            }
+            console.error('Auth error:', msg);
             element.textContent = msg;
             element.classList.remove('hidden');
-            setTimeout(() => element.classList.add('hidden'), 5000);
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.classList.add('hidden');
+                element.style.display = 'none';
+            }, 6000);
         }
 
         async function handleLogout() {
@@ -2577,8 +2667,72 @@
             }
         }
 
+        // SETUP EVENT LISTENERS
+        function setupAuthEventListeners() {
+            const loginEmail = document.getElementById('login-email');
+            const loginPassword = document.getElementById('login-password');
+            const signupEmail = document.getElementById('signup-email');
+            const signupPassword = document.getElementById('signup-password');
+            const signupConfirm = document.getElementById('signup-confirm');
+
+            // Login form - Enter key submits
+            if (loginEmail && loginPassword) {
+                loginEmail.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleLogin();
+                    }
+                });
+                loginPassword.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleLogin();
+                    }
+                });
+            }
+
+            // Signup form - Enter key submits
+            if (signupEmail && signupPassword && signupConfirm) {
+                signupEmail.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSignup();
+                    }
+                });
+                signupPassword.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSignup();
+                    }
+                });
+                signupConfirm.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSignup();
+                    }
+                });
+            }
+
+            console.log('Auth event listeners setup complete');
+        }
+
         // START
-        initApp();
+        let appInitialized = false;
+
+        function startApp() {
+            if (appInitialized) return;
+            appInitialized = true;
+            console.log('Starting application...');
+            setupAuthEventListeners();
+            initApp();
+        }
+
+        // Handle both DOM ready and script load timing
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApp);
+        } else {
+            startApp();
+        }
     </script>
 </body>
 </html>
