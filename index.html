@@ -70,9 +70,11 @@
         }
 
         .header {
+            position: relative;
             text-align: center;
             color: white;
             margin-bottom: 30px;
+            padding-top: 50px;
         }
 
         .header h1 {
@@ -83,6 +85,11 @@
         .header p {
             font-size: 14px;
             opacity: 0.9;
+            line-height: 1.6;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .activity-box {
@@ -92,17 +99,27 @@
             border-radius: 12px;
             margin-bottom: 20px;
             text-align: center;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .activity-box h2 {
             font-size: 24px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            color: white;
         }
 
         .activity-box p {
             font-size: 18px;
-            margin-top: 15px;
-            line-height: 1.5;
+            margin: 15px 0;
+            line-height: 1.6;
+            color: white;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .activity-number {
@@ -112,14 +129,15 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
+            margin-bottom: 10px;
+            font-weight: 600;
             font-size: 14px;
+            color: var(--text-primary);
         }
 
         input, textarea, select {
@@ -129,14 +147,27 @@
             border-radius: 8px;
             font-family: inherit;
             font-size: 14px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
             background: var(--bg-secondary);
             color: var(--text-primary);
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 44px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 20px;
+            padding-right: 32px;
         }
 
         input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         textarea {
@@ -365,55 +396,74 @@
 
         .mood-selector {
             display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            justify-content: space-around;
+            gap: 12px;
+            margin: 20px 0;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .mood-btn {
-            background: none;
+            background: var(--bg-secondary);
             border: 3px solid var(--border-color);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 24px;
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
             cursor: pointer;
             padding: 0;
             transition: all 0.2s;
-            flex: 0;
+            flex: 0 0 auto;
             min-width: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
         }
 
         .mood-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
+            border-color: #667eea;
         }
 
         .mood-btn.selected {
             border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-            transform: scale(1.2);
+            background: rgba(102, 126, 234, 0.2);
+            transform: scale(1.25);
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.4);
         }
 
         .category-selector {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin: 10px 0;
+            margin: 15px 0;
+            align-items: center;
+            justify-content: flex-start;
         }
 
         .category-tag {
-            padding: 6px 12px;
+            padding: 10px 16px;
             border-radius: 20px;
-            background: var(--border-color);
+            background: var(--bg-secondary);
             color: var(--text-primary);
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
-            border: 2px solid transparent;
+            border: 2px solid var(--border-color);
             transition: all 0.2s;
+            white-space: nowrap;
+            flex: 0 0 auto;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
         }
 
         .category-tag:hover {
-            background: rgba(102, 126, 234, 0.2);
+            background: rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
         }
 
         .category-tag.selected {
@@ -465,29 +515,43 @@
         }
 
         .theme-toggle {
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
-            padding: 12px;
+            padding: 12px 14px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 20px;
             transition: all 0.3s;
-            color: var(--text-primary);
+            color: white;
+            min-width: auto;
+            flex: 0;
         }
 
         .theme-toggle:hover {
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
         .time-input-group {
             display: flex;
             gap: 10px;
             align-items: center;
+            width: 100%;
         }
 
         .time-input-group input {
             flex: 1;
-            max-width: 100px;
+            min-width: 100px;
+            min-height: 44px;
+        }
+
+        .time-input-group span {
+            white-space: nowrap;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
         .weekly-reflection {
@@ -562,6 +626,7 @@
 
             .header {
                 margin-bottom: 15px;
+                padding-top: 55px;
             }
 
             .header h1 {
@@ -571,6 +636,15 @@
 
             .header p {
                 font-size: 12px;
+                min-height: 35px;
+                margin-bottom: 10px;
+            }
+
+            .theme-toggle {
+                top: 8px;
+                right: 12px;
+                padding: 10px 12px;
+                font-size: 18px;
             }
 
             .card {
@@ -600,11 +674,11 @@
 
             /* FORM GROUPS - TIGHTER SPACING */
             .form-group {
-                margin-bottom: 14px;
+                margin-bottom: 18px;
             }
 
             label {
-                margin-bottom: 6px;
+                margin-bottom: 8px;
                 font-size: 13px;
             }
 
@@ -644,16 +718,18 @@
                 padding: 18px;
                 margin-bottom: 15px;
                 border-radius: 10px;
+                min-height: 140px;
             }
 
             .activity-box h2 {
-                font-size: 20px;
-                margin-bottom: 10px;
+                font-size: 18px;
+                margin-bottom: 12px;
             }
 
             .activity-box p {
-                font-size: 16px;
-                margin-top: 12px;
+                font-size: 15px;
+                margin: 12px 0;
+                min-height: 55px;
             }
 
             /* BUTTON GROUPS - STACK ON SMALL SCREENS */
@@ -679,27 +755,29 @@
 
             /* MOOD SELECTOR - BETTER SPACING */
             .mood-selector {
-                gap: 8px;
-                margin: 12px 0;
-                justify-content: space-between;
+                gap: 10px;
+                margin: 15px 0;
+                justify-content: center;
             }
 
             .mood-btn {
-                width: 48px;
-                height: 48px;
-                font-size: 22px;
+                width: 56px;
+                height: 56px;
+                font-size: 26px;
+                min-height: 56px;
             }
 
             /* CATEGORY TAGS - WRAP NICELY */
             .category-selector {
-                gap: 6px;
-                margin: 8px 0;
+                gap: 8px;
+                margin: 12px 0;
             }
 
             .category-tag {
-                padding: 8px 10px;
+                padding: 10px 12px;
                 font-size: 12px;
                 border-radius: 16px;
+                min-height: 38px;
             }
 
             /* STATS - 2 COLUMNS ON MOBILE */
@@ -902,8 +980,20 @@
                 padding: 10px;
             }
 
+            .header {
+                padding-top: 50px;
+            }
+
             .header h1 {
                 font-size: 22px;
+                margin-bottom: 6px;
+            }
+
+            .theme-toggle {
+                top: 6px;
+                right: 10px;
+                padding: 8px 10px;
+                font-size: 16px;
             }
 
             .card {
@@ -913,10 +1003,17 @@
 
             .activity-box {
                 padding: 14px;
+                min-height: 130px;
             }
 
             .activity-box h2 {
-                font-size: 18px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .activity-box p {
+                font-size: 14px;
+                min-height: 50px;
             }
 
             .tab {
@@ -936,18 +1033,28 @@
                 min-height: 44px;
                 padding: 10px 12px;
             }
+
+            .mood-btn {
+                width: 52px;
+                height: 52px;
+                font-size: 24px;
+            }
+
+            .category-tag {
+                padding: 8px 10px;
+                font-size: 11px;
+                min-height: 36px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h1 style="margin-bottom: 0;">Daily Activities</h1>
-                <button id="theme-toggle-btn" onclick="toggleTheme()" class="theme-toggle" title="Toggle dark mode">🌙</button>
-            </div>
+            <button id="theme-toggle-btn" onclick="toggleTheme()" class="theme-toggle" title="Toggle dark mode">🌙</button>
+            <h1>Daily Activities</h1>
             <p id="daily-inspiration"></p>
-            <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Small things that remind you of you</p>
+            <p style="margin-top: 8px; font-size: 12px; opacity: 0.8;">Small things that remind you of you</p>
         </div>
 
         <div class="card">
