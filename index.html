@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Activities Tracker</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -16,7 +18,7 @@
             justify-content: center;
             padding: 20px;
         }
-        .container { max-width: 500px; width: 100%; }
+        .container { max-width: 600px; width: 100%; }
         .card {
             background: white;
             border-radius: 12px;
@@ -66,6 +68,34 @@
         .error { color: #d32f2f; font-size: 13px; margin-top: 10px; }
         .success { color: #388e3c; font-size: 13px; margin-top: 10px; }
         .hidden { display: none; }
+        #app-content { padding-top: 20px; }
+        .activity-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .activity-text { font-size: 20px; font-weight: 600; }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        textarea:focus { outline: none; border-color: #667eea; }
+        .entry { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea; }
+        .entry-date { font-size: 12px; color: #999; margin-bottom: 5px; }
+        .entry-activity { font-weight: 600; color: #667eea; margin-bottom: 8px; }
+        .entry-notes { font-size: 14px; color: #555; margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -73,103 +103,217 @@
         <div class="card">
             <h1>Daily Activities</h1>
 
-            <div class="tabs">
-                <button class="tab active" data-tab="login">Login</button>
-                <button class="tab" data-tab="signup">Sign Up</button>
+            <!-- AUTH VIEW -->
+            <div id="auth-view">
+                <div class="tabs">
+                    <button class="tab active" data-tab="login">Login</button>
+                    <button class="tab" data-tab="signup">Sign Up</button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div id="login" class="form-section active">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="login-email" placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" placeholder="Password">
+                    </div>
+                    <button id="login-btn">Sign In</button>
+                    <div id="login-message"></div>
+                </div>
+
+                <!-- SIGNUP FORM -->
+                <div id="signup" class="form-section hidden">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="signup-email" placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signup-password" placeholder="Password (min 6 chars)">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="signup-confirm" placeholder="Confirm Password">
+                    </div>
+                    <button id="signup-btn">Create Account</button>
+                    <div id="signup-message"></div>
+                </div>
             </div>
 
-            <!-- LOGIN FORM -->
-            <div id="login" class="form-section active">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="login-email" placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="login-password" placeholder="Password">
-                </div>
-                <button id="login-btn">Sign In</button>
-                <div id="login-message"></div>
-            </div>
-
-            <!-- SIGNUP FORM -->
-            <div id="signup" class="form-section hidden">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="signup-email" placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="signup-password" placeholder="Password (min 6 chars)">
-                </div>
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" id="signup-confirm" placeholder="Confirm Password">
-                </div>
-                <button id="signup-btn">Create Account</button>
-                <div id="signup-message"></div>
-            </div>
-
-            <!-- LOGGED IN SECTION -->
+            <!-- APP VIEW -->
             <div id="app-view" class="hidden">
-                <p id="user-email" style="text-align: center; margin-bottom: 20px; color: #667eea;"></p>
-                <button onclick="logout()">Sign Out</button>
+                <p id="user-email" style="text-align: center; margin-bottom: 20px; color: #667eea; font-size: 14px;"></p>
+
+                <div class="activity-box">
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 10px;">Today's Activity</div>
+                    <div class="activity-text" id="activity-text">Loading...</div>
+                    <button style="margin-top: 15px; padding: 10px; font-size: 14px; min-height: 40px;" onclick="getNextActivity()">Next</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Your Notes</label>
+                    <textarea id="notes" placeholder="How did this make you feel?"></textarea>
+                </div>
+
+                <button onclick="saveEntry()">Save Entry</button>
+                <div id="app-message"></div>
+
+                <div id="app-content" style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px;">Recent Entries</h3>
+                    <div id="entries-list"></div>
+                </div>
+
+                <button onclick="logout()" style="margin-top: 30px; background: #f0f0f0; color: #333;">Sign Out</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Supabase config - pre-embedded
-        const SUPABASE_URL = 'https://zvjrlyvxlpftdsetrlcs.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_ZREsvm28B9szkjFVoSz7AQ_ij7bFN3e';
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-Sw7_7Tp8B1mvhTuuXroK00xagv9pxo4",
+            authDomain: "things-11510.firebaseapp.com",
+            projectId: "things-11510",
+            storageBucket: "things-11510.firebasestorage.app",
+            messagingSenderId: "626185939822",
+            appId: "1:626185939822:web:2df605b0b14c710df1af7f"
+        };
 
-        let supabaseClient = null;
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const ACTIVITIES = [
+            "Take a walk outside without your phone",
+            "Draw or paint something",
+            "Write in a journal for 10 minutes",
+            "Sit quietly and do nothing for 5 minutes",
+            "Read a chapter from a book",
+            "Cook a simple meal from scratch",
+            "Listen to a song you love",
+            "Call a friend or family member",
+            "Stretch your body mindfully",
+            "Organize one small area of your space",
+            "Take a warm bath or shower",
+            "Make tea and sit with it",
+            "Look at old photos",
+            "Write a letter (even if you don't send it)",
+            "Do something kind for someone",
+            "Sit outside and observe nature",
+            "Practice deep breathing",
+            "Dance to your favorite song",
+            "Watch your favorite movie scene",
+            "Play with a pet"
+        ];
+
         let currentUser = null;
+        let currentActivityIndex = 0;
 
-        // Initialize Supabase
-        function initSupabase() {
-            if (window.supabase) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                checkUser();
-            } else {
-                setTimeout(initSupabase, 100);
-            }
+        function getTodayActivityIndex() {
+            const today = new Date().toDateString();
+            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0);
+            return seed % ACTIVITIES.length;
         }
 
-        // Check if user is logged in
-        async function checkUser() {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (user) {
-                currentUser = user;
-                showAppView();
-            }
+        function getNextActivity() {
+            currentActivityIndex = (currentActivityIndex + 1) % ACTIVITIES.length;
+            document.getElementById('activity-text').textContent = ACTIVITIES[currentActivityIndex];
         }
 
-        // Show app after login
+        function updateActivityDisplay() {
+            currentActivityIndex = getTodayActivityIndex();
+            document.getElementById('activity-text').textContent = ACTIVITIES[currentActivityIndex];
+        }
+
+        function showAuthView() {
+            document.getElementById('auth-view').classList.remove('hidden');
+            document.getElementById('app-view').classList.add('hidden');
+        }
+
         function showAppView() {
-            document.getElementById('login').classList.add('hidden');
-            document.getElementById('signup').classList.add('hidden');
+            document.getElementById('auth-view').classList.add('hidden');
             document.getElementById('app-view').classList.remove('hidden');
             document.getElementById('user-email').textContent = `Logged in as: ${currentUser.email}`;
+            updateActivityDisplay();
+            loadEntries();
         }
 
-        // Show login/signup
-        function showAuthView() {
-            document.getElementById('login').classList.remove('hidden');
-            document.getElementById('signup').classList.add('hidden');
-            document.getElementById('app-view').classList.add('hidden');
-            document.querySelector('[data-tab="login"]').classList.add('active');
-            document.querySelector('[data-tab="signup"]').classList.remove('active');
-        }
-
-        // Logout
         async function logout() {
-            await supabaseClient.auth.signOut();
+            await auth.signOut();
             currentUser = null;
             showAuthView();
         }
 
-        // Handle login
+        async function saveEntry() {
+            const notes = document.getElementById('notes').value.trim();
+            const msg = document.getElementById('app-message');
+
+            if (!notes) {
+                msg.innerHTML = '<div class="error">Please add a note</div>';
+                return;
+            }
+
+            try {
+                await db.collection('users').doc(currentUser.uid).collection('entries').add({
+                    activity: ACTIVITIES[currentActivityIndex],
+                    notes: notes,
+                    timestamp: new Date(),
+                    date: new Date().toDateString()
+                });
+
+                document.getElementById('notes').value = '';
+                msg.innerHTML = '<div class="success">Entry saved!</div>';
+                setTimeout(() => msg.innerHTML = '', 3000);
+                loadEntries();
+            } catch (err) {
+                msg.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+            }
+        }
+
+        async function loadEntries() {
+            const entriesList = document.getElementById('entries-list');
+
+            try {
+                const snapshot = await db.collection('users').doc(currentUser.uid).collection('entries')
+                    .orderBy('timestamp', 'desc')
+                    .limit(10)
+                    .get();
+
+                if (snapshot.empty) {
+                    entriesList.innerHTML = '<p style="text-align: center; color: #999;">No entries yet</p>';
+                    return;
+                }
+
+                entriesList.innerHTML = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const date = data.timestamp.toDate();
+                    return `
+                        <div class="entry">
+                            <div class="entry-date">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</div>
+                            <div class="entry-activity">${data.activity}</div>
+                            <div class="entry-notes">${data.notes}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                entriesList.innerHTML = `<p style="color: #d32f2f; font-size: 13px;">${err.message}</p>`;
+            }
+        }
+
+        // Tab switching
+        document.querySelectorAll('[data-tab]').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.form-section').forEach(s => s.classList.add('hidden'));
+                tab.classList.add('active');
+                document.getElementById(tabName).classList.remove('hidden');
+            });
+        });
+
+        // Login
         document.getElementById('login-btn').addEventListener('click', async () => {
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
@@ -181,17 +325,15 @@
             }
 
             try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-
-                currentUser = data.user;
+                const result = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = result.user;
                 showAppView();
             } catch (err) {
-                msg.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+                msg.innerHTML = `<div class="error">${err.message}</div>`;
             }
         });
 
-        // Handle signup
+        // Signup
         document.getElementById('signup-btn').addEventListener('click', async () => {
             const email = document.getElementById('signup-email').value.trim();
             const password = document.getElementById('signup-password').value.trim();
@@ -199,7 +341,7 @@
             const msg = document.getElementById('signup-message');
 
             if (!email || !password || !confirm) {
-                msg.innerHTML = '<div class="error">Please fill in all fields</div>';
+                msg.innerHTML = '<div class="error">Please fill all fields</div>';
                 return;
             }
 
@@ -209,42 +351,29 @@
             }
 
             if (password.length < 6) {
-                msg.innerHTML = '<div class="error">Password must be at least 6 characters</div>';
+                msg.innerHTML = '<div class="error">Password must be 6+ characters</div>';
                 return;
             }
 
             try {
-                const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) throw error;
-
-                msg.innerHTML = '<div class="success">Account created! You can now log in.</div>';
-                document.getElementById('signup-email').value = '';
-                document.getElementById('signup-password').value = '';
-                document.getElementById('signup-confirm').value = '';
+                const result = await auth.createUserWithEmailAndPassword(email, password);
+                currentUser = result.user;
+                showAppView();
             } catch (err) {
-                msg.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+                msg.innerHTML = `<div class="error">${err.message}</div>`;
             }
         });
 
-        // Tab switching
-        document.querySelectorAll('[data-tab]').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabName = tab.getAttribute('data-tab');
-
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.form-section').forEach(s => s.classList.add('hidden'));
-
-                tab.classList.add('active');
-                document.getElementById(tabName).classList.remove('hidden');
-
-                // Clear messages
-                document.getElementById('login-message').innerHTML = '';
-                document.getElementById('signup-message').innerHTML = '';
-            });
+        // Check auth state
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                showAppView();
+            } else {
+                currentUser = null;
+                showAuthView();
+            }
         });
-
-        // Start app
-        initSupabase();
     </script>
 </body>
 </html>
