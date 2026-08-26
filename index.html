@@ -123,13 +123,13 @@
         const SUPABASE_URL = 'https://zvjrlyvxlpftdsetrlcs.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_ZREsvm28B9szkjFVoSz7AQ_ij7bFN3e';
 
-        let supabase = null;
+        let supabaseClient = null;
         let currentUser = null;
 
         // Initialize Supabase
         function initSupabase() {
             if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 checkUser();
             } else {
                 setTimeout(initSupabase, 100);
@@ -138,7 +138,7 @@
 
         // Check if user is logged in
         async function checkUser() {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await supabaseClient.auth.getUser();
             if (user) {
                 currentUser = user;
                 showAppView();
@@ -164,7 +164,7 @@
 
         // Logout
         async function logout() {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             currentUser = null;
             showAuthView();
         }
@@ -181,7 +181,7 @@
             }
 
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) throw error;
 
                 currentUser = data.user;
@@ -214,7 +214,7 @@
             }
 
             try {
-                const { data, error } = await supabase.auth.signUp({ email, password });
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
                 if (error) throw error;
 
                 msg.innerHTML = '<div class="success">Account created! You can now log in.</div>';
