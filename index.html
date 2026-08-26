@@ -552,6 +552,391 @@
             background: rgba(211, 47, 47, 0.1);
             color: #d32f2f;
         }
+
+        /* MOBILE OPTIMIZATION FOR SCREENS UNDER 600PX */
+        @media (max-width: 599px) {
+            .container {
+                padding: 12px;
+                max-width: 100%;
+            }
+
+            .header {
+                margin-bottom: 15px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+
+            .header p {
+                font-size: 12px;
+            }
+
+            .card {
+                padding: 15px;
+                margin: 10px 0;
+                border-radius: 10px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            }
+
+            /* TAB STYLING - MORE COMPACT */
+            .tabs {
+                gap: 0;
+                margin-bottom: 15px;
+                border-bottom: 2px solid #e0e0e0;
+                display: flex;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab {
+                padding: 10px 12px;
+                font-size: 13px;
+                white-space: nowrap;
+                flex-shrink: 0;
+                border-bottom-width: 3px;
+            }
+
+            /* FORM GROUPS - TIGHTER SPACING */
+            .form-group {
+                margin-bottom: 14px;
+            }
+
+            label {
+                margin-bottom: 6px;
+                font-size: 13px;
+            }
+
+            /* INPUTS & TEXTAREAS - BIGGER FOR THUMB */
+            input, textarea, select {
+                padding: 14px;
+                font-size: 16px;
+                border-radius: 6px;
+                min-height: 44px;
+            }
+
+            textarea {
+                min-height: 90px;
+                font-size: 16px;
+            }
+
+            select {
+                padding: 14px 10px;
+            }
+
+            /* BUTTONS - THUMB FRIENDLY */
+            button {
+                min-height: 44px;
+                padding: 12px 14px;
+                font-size: 15px;
+                border-radius: 6px;
+            }
+
+            .btn-small {
+                padding: 8px 10px;
+                font-size: 12px;
+                min-height: auto;
+            }
+
+            /* ACTIVITY BOX - COMPACT */
+            .activity-box {
+                padding: 18px;
+                margin-bottom: 15px;
+                border-radius: 10px;
+            }
+
+            .activity-box h2 {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+
+            .activity-box p {
+                font-size: 16px;
+                margin-top: 12px;
+            }
+
+            /* BUTTON GROUPS - STACK ON SMALL SCREENS */
+            .button-group {
+                gap: 8px;
+                margin-bottom: 15px;
+            }
+
+            /* TIME INPUT GROUP - BETTER MOBILE UX */
+            .time-input-group {
+                gap: 8px;
+                align-items: stretch;
+            }
+
+            .time-input-group input {
+                max-width: none;
+                flex: 1;
+            }
+
+            .time-input-group span {
+                display: none;
+            }
+
+            /* MOOD SELECTOR - BETTER SPACING */
+            .mood-selector {
+                gap: 8px;
+                margin: 12px 0;
+                justify-content: space-between;
+            }
+
+            .mood-btn {
+                width: 48px;
+                height: 48px;
+                font-size: 22px;
+            }
+
+            /* CATEGORY TAGS - WRAP NICELY */
+            .category-selector {
+                gap: 6px;
+                margin: 8px 0;
+            }
+
+            .category-tag {
+                padding: 8px 10px;
+                font-size: 12px;
+                border-radius: 16px;
+            }
+
+            /* STATS - 2 COLUMNS ON MOBILE */
+            .stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .stat-box {
+                padding: 12px;
+                border-radius: 6px;
+            }
+
+            .stat-number {
+                font-size: 24px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+                margin-top: 4px;
+            }
+
+            /* ENTRIES - COMPACT BUT READABLE */
+            .entry {
+                padding: 12px;
+                margin-bottom: 10px;
+                border-radius: 6px;
+                border-left-width: 3px;
+            }
+
+            .entry-date {
+                font-size: 11px;
+                margin-bottom: 4px;
+            }
+
+            .entry-activity {
+                font-size: 13px;
+                margin-bottom: 6px;
+                display: flex;
+                gap: 4px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .entry-mood {
+                font-size: 16px;
+                margin-left: 2px;
+                display: inline-block;
+            }
+
+            .entry-meta {
+                gap: 6px;
+                margin: 6px 0;
+                font-size: 11px;
+            }
+
+            .meta-badge {
+                padding: 3px 6px;
+                border-radius: 10px;
+                font-size: 11px;
+            }
+
+            .entry-text {
+                font-size: 13px;
+                margin-bottom: 6px;
+                line-height: 1.5;
+            }
+
+            .delete-entry {
+                font-size: 11px;
+                margin-top: 6px;
+                padding-top: 6px;
+            }
+
+            audio {
+                height: 28px;
+                margin-top: 6px;
+            }
+
+            /* RECORDING INDICATOR */
+            .recording {
+                padding: 12px;
+                margin-bottom: 12px;
+                border-radius: 6px;
+            }
+
+            .recording-dot {
+                width: 10px;
+                height: 10px;
+            }
+
+            /* NO-ENTRIES MESSAGE */
+            .no-entries {
+                padding: 20px;
+                font-size: 13px;
+            }
+
+            /* WEEKLY REFLECTION - COMPACT */
+            .weekly-reflection {
+                padding: 12px;
+                margin-bottom: 15px;
+                border-left-width: 3px;
+            }
+
+            .weekly-reflection h3 {
+                margin-bottom: 8px;
+            }
+
+            /* REPEAT OPTION - COMPACT */
+            .repeat-option {
+                padding: 12px;
+                margin-top: 12px;
+                border-radius: 6px;
+            }
+
+            .repeat-option button {
+                margin-top: 8px;
+            }
+
+            /* REMINDER SETUP - COMPACT */
+            .reminder-setup {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .reminder-time {
+                gap: 8px;
+                margin: 8px 0;
+                align-items: center;
+            }
+
+            .reminder-time input {
+                flex: 1;
+                max-width: 100%;
+            }
+
+            .reminder-status {
+                font-size: 12px;
+                padding: 8px;
+                margin-top: 8px;
+            }
+
+            /* CONTROLS - BETTER SPACING */
+            .controls {
+                gap: 8px;
+            }
+
+            .controls button {
+                flex: 1;
+            }
+
+            /* THEME TOGGLE - BETTER PLACEMENT */
+            .theme-toggle {
+                padding: 10px 12px;
+                font-size: 16px;
+                border-radius: 6px;
+            }
+
+            /* SEARCH BOX */
+            .search-box {
+                margin-bottom: 12px;
+            }
+
+            /* HIDE LONG DESCRIPTIONS ON MOBILE */
+            .form-group p {
+                font-size: 12px;
+                line-height: 1.5;
+            }
+
+            /* CUSTOM ACTIVITIES LIST - COMPACT */
+            #custom-activities-list div {
+                padding: 8px;
+                margin: 4px 0;
+                font-size: 12px;
+            }
+
+            /* TOP ACTIVITIES - COMPACT */
+            #top-activities div {
+                padding: 8px;
+                margin: 4px 0;
+                font-size: 12px;
+            }
+
+            /* PREVENT HORIZONTAL SCROLLING */
+            * {
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            /* ENSURE INPUTS DON'T ZOOM PAGE ON IOS */
+            input, textarea, select, button {
+                font-size: 16px;
+            }
+        }
+
+        /* ULTRA-SMALL SCREENS (375-400px) */
+        @media (max-width: 389px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .card {
+                padding: 12px;
+                margin: 8px 0;
+            }
+
+            .activity-box {
+                padding: 14px;
+            }
+
+            .activity-box h2 {
+                font-size: 18px;
+            }
+
+            .tab {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .stat-number {
+                font-size: 22px;
+            }
+
+            .entry {
+                padding: 10px;
+            }
+
+            button {
+                min-height: 44px;
+                padding: 10px 12px;
+            }
+        }
     </style>
 </head>
 <body>
