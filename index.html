@@ -645,6 +645,9 @@
             max-width: 450px;
             width: 100%;
             color: #333;
+            position: relative;
+            z-index: 100;
+            pointer-events: auto !important;
         }
 
         .login-card h1 {
@@ -666,6 +669,9 @@
             gap: 0;
             margin-bottom: 25px;
             border-bottom: 2px solid #e0e0e0;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 100;
         }
 
         .login-tab {
@@ -673,12 +679,15 @@
             padding: 12px;
             border: none;
             background: none;
-            cursor: pointer;
+            cursor: pointer !important;
             font-weight: 600;
             font-size: 14px;
             color: #999;
             border-bottom: 3px solid transparent;
             transition: all 0.3s;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 100;
         }
 
         .login-tab.active {
@@ -688,10 +697,14 @@
 
         .login-form {
             display: none;
+            pointer-events: none;
         }
 
         .login-form.active {
             display: block;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 100;
         }
 
         .login-form input {
@@ -702,6 +715,9 @@
             border-radius: 8px;
             font-size: 14px;
             background: #f9f9f9;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 100;
         }
 
         .login-form input:focus {
@@ -719,9 +735,12 @@
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
+            cursor: pointer !important;
             transition: all 0.3s;
             margin-bottom: 15px;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 100;
         }
 
         .login-form button:hover {
@@ -1299,15 +1318,15 @@
             <p>Cloud-synced activity tracking. Use on all your devices.</p>
 
             <div class="login-tabs">
-                <button type="button" class="login-tab active" onclick="switchLoginTab('login')" style="cursor: pointer; pointer-events: auto;">Login</button>
-                <button type="button" class="login-tab" onclick="switchLoginTab('signup')" style="cursor: pointer; pointer-events: auto;">Sign Up</button>
+                <button type="button" class="login-tab active" onclick="console.log('Login tab clicked'); switchLoginTab('login');" style="cursor: pointer; pointer-events: auto;">Login</button>
+                <button type="button" class="login-tab" onclick="console.log('Signup tab clicked'); switchLoginTab('signup');" style="cursor: pointer; pointer-events: auto;">Sign Up</button>
             </div>
 
             <div id="login-form" class="login-form active">
                 <div id="login-error" class="auth-error hidden" style="display: none;"></div>
                 <input type="email" id="login-email" placeholder="Your email" autocomplete="email" required aria-label="Email address">
                 <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password" required aria-label="Password">
-                <button type="button" onclick="handleLogin()" id="login-btn" style="cursor: pointer; pointer-events: auto;">Login</button>
+                <button type="button" onclick="console.log('LOGIN BUTTON CLICKED'); handleLogin();" id="login-btn" style="cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 100;">Login</button>
                 <p style="font-size: 12px; color: #999; text-align: center; margin-top: 15px;">
                     Demo: Use any email/password to test (will create account)
                 </p>
@@ -1318,7 +1337,7 @@
                 <input type="email" id="signup-email" placeholder="Your email" autocomplete="email" required aria-label="Email address">
                 <input type="password" id="signup-password" placeholder="Choose a password (min 6 chars)" autocomplete="new-password" required aria-label="Password">
                 <input type="password" id="signup-confirm" placeholder="Confirm password" autocomplete="new-password" required aria-label="Confirm password">
-                <button type="button" onclick="handleSignup()" id="signup-btn" style="cursor: pointer; pointer-events: auto;">Create Account</button>
+                <button type="button" onclick="console.log('SIGNUP BUTTON CLICKED'); handleSignup();" id="signup-btn" style="cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 100;">Create Account</button>
                 <p style="font-size: 12px; color: #999; text-align: center; margin-top: 15px;">
                     Your data stays private and encrypted
                 </p>
@@ -1785,25 +1804,42 @@
         }
 
         function switchLoginTab(tab) {
-            document.querySelectorAll('.login-form').forEach(el => el.classList.remove('active'));
-            document.getElementById(tab + '-form').classList.add('active');
-
-            document.querySelectorAll('.login-tab').forEach(el => {
-                el.classList.remove('active');
-                if (el.textContent.toLowerCase().includes(tab.split('-')[0])) {
-                    el.classList.add('active');
+            console.log('switchLoginTab called with tab:', tab);
+            try {
+                document.querySelectorAll('.login-form').forEach(el => el.classList.remove('active'));
+                const targetForm = document.getElementById(tab + '-form');
+                if (targetForm) {
+                    targetForm.classList.add('active');
+                    console.log('Switched to form:', tab + '-form');
+                } else {
+                    console.error('Form not found:', tab + '-form');
                 }
-            });
+
+                document.querySelectorAll('.login-tab').forEach(el => {
+                    el.classList.remove('active');
+                    if (el.textContent.toLowerCase().includes(tab.split('-')[0])) {
+                        el.classList.add('active');
+                        console.log('Activated tab:', el.textContent);
+                    }
+                });
+            } catch (err) {
+                console.error('Error in switchLoginTab:', err);
+            }
         }
 
         // AUTH
         async function handleLogin() {
+            console.log('=== HANDLELOGIN CALLED ===');
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
             const btn = document.getElementById('login-btn');
             const errorEl = document.getElementById('login-error');
 
             console.log('Login attempt for:', email);
+            console.log('Email field value:', email);
+            console.log('Password field exists:', !!document.getElementById('login-password'));
+            console.log('Button element:', !!btn);
+            console.log('Error element:', !!errorEl);
 
             if (!email || !password) {
                 showAuthError('Please enter email and password', errorEl);
@@ -1856,6 +1892,7 @@
         }
 
         async function handleSignup() {
+            console.log('=== HANDLESIGNUP CALLED ===');
             const email = document.getElementById('signup-email').value.trim();
             const password = document.getElementById('signup-password').value;
             const confirm = document.getElementById('signup-confirm').value;
@@ -1863,6 +1900,11 @@
             const errorEl = document.getElementById('signup-error');
 
             console.log('Signup attempt for:', email);
+            console.log('Email field value:', email);
+            console.log('Password field exists:', !!document.getElementById('signup-password'));
+            console.log('Confirm field exists:', !!document.getElementById('signup-confirm'));
+            console.log('Button element:', !!btn);
+            console.log('Error element:', !!errorEl);
 
             if (!email || !password || !confirm) {
                 showAuthError('Please fill in all fields', errorEl);
@@ -2722,15 +2764,22 @@
         function startApp() {
             if (appInitialized) return;
             appInitialized = true;
-            console.log('Starting application...');
+            console.log('=== APP STARTING ===');
+            console.log('Document ready state:', document.readyState);
+            console.log('Login screen element:', !!document.getElementById('login-screen'));
+            console.log('App screen element:', !!document.getElementById('app-screen'));
+            console.log('Login button element:', !!document.getElementById('login-btn'));
+            console.log('Signup button element:', !!document.getElementById('signup-btn'));
             setupAuthEventListeners();
             initApp();
         }
 
         // Handle both DOM ready and script load timing
         if (document.readyState === 'loading') {
+            console.log('DOM still loading, waiting for DOMContentLoaded...');
             document.addEventListener('DOMContentLoaded', startApp);
         } else {
+            console.log('DOM already loaded, starting app immediately...');
             startApp();
         }
     </script>
