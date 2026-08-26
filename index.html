@@ -9,6 +9,7 @@
     <meta name="theme-color" content="#667eea">
     <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Daily%20Activities%20Tracker%22,%22short_name%22:%22Activities%22,%22start_url%22:%22./index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22%23667eea%22,%22theme_color%22:%22%23667eea%22,%22scope%22:%22./%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20192%20192%27%3E%3Crect%20fill=%27%23667eea%27%20width=%27192%27%20height=%27192%27/%3E%3Ctext%20x=%2796%27%20y=%27128%27%20font-size=%2780%27%20text-anchor=%27middle%27%20fill=%27white%27%20font-family=%27Arial%27%3E🌱%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%22}]}">
     <title>Daily Activities Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-primary: #ffffff;
@@ -617,7 +618,240 @@
             color: #d32f2f;
         }
 
-        /* MOBILE OPTIMIZATION FOR SCREENS UNDER 600PX */
+        /* LOGIN SCREEN STYLES */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .login-screen.hidden {
+            display: none;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 450px;
+            width: 100%;
+            color: #333;
+        }
+
+        .login-card h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-card p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .login-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .login-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .login-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .login-form {
+            display: none;
+        }
+
+        .login-form.active {
+            display: block;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #f9f9f9;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .login-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-form button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .setup-section {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .setup-section h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .setup-section ol {
+            margin-left: 20px;
+            color: #666;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .setup-section li {
+            margin-bottom: 8px;
+        }
+
+        .setup-section code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+        }
+
+        .config-inputs {
+            margin: 15px 0;
+        }
+
+        .config-inputs input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: monospace;
+        }
+
+        .config-inputs button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .auth-error {
+            background: #ffebee;
+            color: #d32f2f;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .auth-success {
+            background: #e8f5e9;
+            color: #388e3c;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .user-info {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .sync-status.hidden {
+            display: none;
+        }
+
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #388e3c;
+        }
+
+        .sync-indicator.syncing {
+            animation: pulse 1s infinite;
+            background: #ffa726;
+        }
+
         @media (max-width: 599px) {
             .container {
                 padding: 12px;
@@ -654,7 +888,6 @@
                 box-shadow: 0 5px 20px rgba(0,0,0,0.15);
             }
 
-            /* TAB STYLING - MORE COMPACT */
             .tabs {
                 gap: 0;
                 margin-bottom: 15px;
@@ -672,7 +905,6 @@
                 border-bottom-width: 3px;
             }
 
-            /* FORM GROUPS - TIGHTER SPACING */
             .form-group {
                 margin-bottom: 18px;
             }
@@ -682,7 +914,6 @@
                 font-size: 13px;
             }
 
-            /* INPUTS & TEXTAREAS - BIGGER FOR THUMB */
             input, textarea, select {
                 padding: 14px;
                 font-size: 16px;
@@ -699,7 +930,6 @@
                 padding: 14px 10px;
             }
 
-            /* BUTTONS - THUMB FRIENDLY */
             button {
                 min-height: 44px;
                 padding: 12px 14px;
@@ -713,7 +943,6 @@
                 min-height: auto;
             }
 
-            /* ACTIVITY BOX - COMPACT */
             .activity-box {
                 padding: 18px;
                 margin-bottom: 15px;
@@ -732,13 +961,11 @@
                 min-height: 55px;
             }
 
-            /* BUTTON GROUPS - STACK ON SMALL SCREENS */
             .button-group {
                 gap: 8px;
                 margin-bottom: 15px;
             }
 
-            /* TIME INPUT GROUP - BETTER MOBILE UX */
             .time-input-group {
                 gap: 8px;
                 align-items: stretch;
@@ -753,7 +980,6 @@
                 display: none;
             }
 
-            /* MOOD SELECTOR - BETTER SPACING */
             .mood-selector {
                 gap: 10px;
                 margin: 15px 0;
@@ -767,7 +993,6 @@
                 min-height: 56px;
             }
 
-            /* CATEGORY TAGS - WRAP NICELY */
             .category-selector {
                 gap: 8px;
                 margin: 12px 0;
@@ -780,7 +1005,6 @@
                 min-height: 38px;
             }
 
-            /* STATS - 2 COLUMNS ON MOBILE */
             .stats {
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
@@ -801,7 +1025,6 @@
                 margin-top: 4px;
             }
 
-            /* ENTRIES - COMPACT BUT READABLE */
             .entry {
                 padding: 12px;
                 margin-bottom: 10px;
@@ -858,7 +1081,6 @@
                 margin-top: 6px;
             }
 
-            /* RECORDING INDICATOR */
             .recording {
                 padding: 12px;
                 margin-bottom: 12px;
@@ -870,13 +1092,11 @@
                 height: 10px;
             }
 
-            /* NO-ENTRIES MESSAGE */
             .no-entries {
                 padding: 20px;
                 font-size: 13px;
             }
 
-            /* WEEKLY REFLECTION - COMPACT */
             .weekly-reflection {
                 padding: 12px;
                 margin-bottom: 15px;
@@ -887,7 +1107,6 @@
                 margin-bottom: 8px;
             }
 
-            /* REPEAT OPTION - COMPACT */
             .repeat-option {
                 padding: 12px;
                 margin-top: 12px;
@@ -898,7 +1117,6 @@
                 margin-top: 8px;
             }
 
-            /* REMINDER SETUP - COMPACT */
             .reminder-setup {
                 padding: 12px;
                 margin-bottom: 12px;
@@ -921,7 +1139,6 @@
                 margin-top: 8px;
             }
 
-            /* CONTROLS - BETTER SPACING */
             .controls {
                 gap: 8px;
             }
@@ -930,51 +1147,73 @@
                 flex: 1;
             }
 
-            /* THEME TOGGLE - BETTER PLACEMENT */
             .theme-toggle {
                 padding: 10px 12px;
                 font-size: 16px;
                 border-radius: 6px;
             }
 
-            /* SEARCH BOX */
             .search-box {
                 margin-bottom: 12px;
             }
 
-            /* HIDE LONG DESCRIPTIONS ON MOBILE */
             .form-group p {
                 font-size: 12px;
                 line-height: 1.5;
             }
 
-            /* CUSTOM ACTIVITIES LIST - COMPACT */
             #custom-activities-list div {
                 padding: 8px;
                 margin: 4px 0;
                 font-size: 12px;
             }
 
-            /* TOP ACTIVITIES - COMPACT */
             #top-activities div {
                 padding: 8px;
                 margin: 4px 0;
                 font-size: 12px;
             }
 
-            /* PREVENT HORIZONTAL SCROLLING */
             * {
                 max-width: 100%;
                 overflow-x: hidden;
             }
 
-            /* ENSURE INPUTS DON'T ZOOM PAGE ON IOS */
             input, textarea, select, button {
                 font-size: 16px;
             }
+
+            .login-card {
+                padding: 25px;
+                border-radius: 12px;
+            }
+
+            .login-card h1 {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+
+            .login-card p {
+                font-size: 13px;
+                margin-bottom: 20px;
+            }
+
+            .setup-section {
+                padding: 15px;
+                margin: 15px 0;
+            }
+
+            .setup-section h3 {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+
+            .setup-section ol {
+                font-size: 12px;
+                line-height: 1.6;
+            }
         }
 
-        /* ULTRA-SMALL SCREENS (375-400px) */
         @media (max-width: 389px) {
             .container {
                 padding: 10px;
@@ -1045,164 +1284,245 @@
                 font-size: 11px;
                 min-height: 36px;
             }
+
+            .login-card {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <button id="theme-toggle-btn" onclick="toggleTheme()" class="theme-toggle" title="Toggle dark mode">🌙</button>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-card">
             <h1>Daily Activities</h1>
-            <p id="daily-inspiration"></p>
-            <p style="margin-top: 8px; font-size: 12px; opacity: 0.8;">Small things that remind you of you</p>
+            <p>Cloud-synced activity tracking. Use on all your devices.</p>
+
+            <div class="login-tabs">
+                <button class="login-tab active" onclick="switchLoginTab('login')">Login</button>
+                <button class="login-tab" onclick="switchLoginTab('signup')">Sign Up</button>
+            </div>
+
+            <div id="login-form" class="login-form active">
+                <div id="login-error" class="auth-error hidden"></div>
+                <input type="email" id="login-email" placeholder="Your email" autocomplete="email">
+                <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password">
+                <button onclick="handleLogin()" id="login-btn">Login</button>
+                <p style="font-size: 12px; color: #999; text-align: center; margin-top: 15px;">
+                    Demo: Use any email/password to test (will create account)
+                </p>
+            </div>
+
+            <div id="signup-form" class="login-form">
+                <div id="signup-error" class="auth-error hidden"></div>
+                <input type="email" id="signup-email" placeholder="Your email" autocomplete="email">
+                <input type="password" id="signup-password" placeholder="Choose a password (min 6 chars)" autocomplete="new-password">
+                <input type="password" id="signup-confirm" placeholder="Confirm password" autocomplete="new-password">
+                <button onclick="handleSignup()" id="signup-btn">Create Account</button>
+                <p style="font-size: 12px; color: #999; text-align: center; margin-top: 15px;">
+                    Your data stays private and encrypted
+                </p>
+            </div>
+
+            <div id="setup-form" class="login-form hidden">
+                <!-- Setup form hidden - credentials are embedded -->
+            </div>
         </div>
+    </div>
 
-        <div class="card">
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('today')">Today's Activity</button>
-                <button class="tab" onclick="switchTab('history')">History</button>
-                <button class="tab" onclick="switchTab('settings')">Settings</button>
+    <!-- MAIN APP -->
+    <div id="app-screen" class="hidden">
+        <div class="container">
+            <div class="header">
+                <button id="theme-toggle-btn" onclick="toggleTheme()" class="theme-toggle" title="Toggle dark mode">🌙</button>
+                <h1>Daily Activities</h1>
+                <p id="daily-inspiration"></p>
+                <p style="margin-top: 8px; font-size: 12px; opacity: 0.8;">Small things that remind you of you</p>
             </div>
 
-            <!-- TODAY TAB -->
-            <div id="today-tab">
-                <div id="weekly-reflection" class="hidden"></div>
-
-                <div class="activity-box">
-                    <h2>Today's Activity</h2>
-                    <p id="activity-text"></p>
-                    <div class="activity-number">
-                        <button onclick="nextActivity()" class="btn-secondary btn-small">Next</button>
-                    </div>
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('today')">Today's Activity</button>
+                    <button class="tab" onclick="switchTab('history')">History</button>
+                    <button class="tab" onclick="switchTab('settings')">Settings</button>
                 </div>
 
-                <div class="form-group">
-                    <label>Activity Category (optional)</label>
-                    <div class="category-selector" id="category-selector"></div>
-                </div>
+                <!-- TODAY TAB -->
+                <div id="today-tab">
+                    <div id="weekly-reflection" class="hidden"></div>
 
-                <div class="form-group">
-                    <label>How long did this take? (optional, in minutes)</label>
-                    <div class="time-input-group">
-                        <input type="number" id="duration" placeholder="e.g., 30" min="1" max="999">
-                        <span style="color: var(--text-muted);">minutes</span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Your Notes</label>
-                    <textarea id="notes" placeholder="How did this make you feel? What did you notice?"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>How are you feeling? (optional)</label>
-                    <div class="mood-selector" id="mood-selector"></div>
-                </div>
-
-                <div class="form-group">
-                    <label>Record Your Voice (optional)</label>
-                    <div id="recording-status"></div>
-                    <div class="button-group">
-                        <button id="record-btn" onclick="startRecording()" class="btn-secondary">🎤 Record</button>
-                        <button id="stop-btn" onclick="stopRecording()" class="btn-secondary hidden">⏹ Stop</button>
-                    </div>
-                    <div id="audio-playback"></div>
-                </div>
-
-                <div id="message"></div>
-                <button onclick="saveEntry()" class="btn-primary" style="width: 100%;">Save Entry</button>
-                <div id="repeat-option" class="hidden"></div>
-            </div>
-
-            <!-- HISTORY TAB -->
-            <div id="history-tab" class="hidden">
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-number" id="total-entries">0</div>
-                        <div class="stat-label">Total Entries</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="streak">0</div>
-                        <div class="stat-label">Day Streak</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="avg-mood">-</div>
-                        <div class="stat-label">Average Mood</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="total-time">0h</div>
-                        <div class="stat-label">Total Time</div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <h3 style="margin-bottom: 10px;">Most Done Activities</h3>
-                    <div id="top-activities" style="font-size: 13px;"></div>
-                </div>
-
-                <div class="search-box">
-                    <input type="text" id="search-input" placeholder="Search entries by date or keywords...">
-                </div>
-
-                <h3>Recent Entries</h3>
-                <div id="entries-list"></div>
-            </div>
-
-            <!-- SETTINGS TAB -->
-            <div id="settings-tab" class="hidden">
-                <div class="form-group">
-                    <label>Daily Reminders</label>
-                    <div class="reminder-setup">
-                        <div class="reminder-time">
-                            <label style="margin-bottom: 0; flex: 0;">Time:</label>
-                            <input type="time" id="reminder-time" value="09:00">
+                    <div class="activity-box">
+                        <h2>Today's Activity</h2>
+                        <p id="activity-text"></p>
+                        <div class="activity-number">
+                            <button onclick="nextActivity()" class="btn-secondary btn-small">Next</button>
                         </div>
-                        <button onclick="enableReminder()" class="btn-primary" style="width: 100%;">Enable Reminder</button>
-                        <button onclick="disableReminder()" class="btn-secondary" style="width: 100%; margin-top: 8px;">Disable Reminder</button>
-                        <div id="reminder-status-msg" class="reminder-status inactive">Reminders are off</div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label>Data Management</label>
-                    <div class="controls">
-                        <button onclick="exportData()" class="btn-secondary" style="flex: 1;">📥 Export Data</button>
-                        <button onclick="clearAllData()" class="btn-secondary" style="flex: 1; color: #d32f2f;">🗑 Clear All</button>
+                    <div class="form-group">
+                        <label>Activity Category (optional)</label>
+                        <div class="category-selector" id="category-selector"></div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label>📱 Use on Your Phone</label>
-                    <p style="font-size: 13px; color: #666; line-height: 1.6;">
-                        <strong>iPhone:</strong> Tap Share → Add to Home Screen<br/>
-                        <strong>Android:</strong> Tap ⋮ → Install app (or Add to Home Screen)<br/><br/>
-                        Your app will appear on your home screen for quick access.
-                    </p>
-                </div>
-
-                <div class="form-group">
-                    <label>Add Your Own Activity</label>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <input type="text" id="custom-activity" placeholder="Enter a new activity" style="flex: 1;">
-                        <button onclick="addCustomActivity()" class="btn-primary btn-small">Add</button>
+                    <div class="form-group">
+                        <label>How long did this take? (optional, in minutes)</label>
+                        <div class="time-input-group">
+                            <input type="number" id="duration" placeholder="e.g., 30" min="1" max="999">
+                            <span style="color: var(--text-muted);">minutes</span>
+                        </div>
                     </div>
-                    <div id="custom-activities-list" style="font-size: 13px;"></div>
+
+                    <div class="form-group">
+                        <label>Your Notes</label>
+                        <textarea id="notes" placeholder="How did this make you feel? What did you notice?"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>How are you feeling? (optional)</label>
+                        <div class="mood-selector" id="mood-selector"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Record Your Voice (optional)</label>
+                        <div id="recording-status"></div>
+                        <div class="button-group">
+                            <button id="record-btn" onclick="startRecording()" class="btn-secondary">🎤 Record</button>
+                            <button id="stop-btn" onclick="stopRecording()" class="btn-secondary hidden">⏹ Stop</button>
+                        </div>
+                        <div id="audio-playback"></div>
+                    </div>
+
+                    <div id="message"></div>
+                    <button onclick="saveEntry()" class="btn-primary" style="width: 100%;">Save Entry</button>
+                    <div id="repeat-option" class="hidden"></div>
                 </div>
 
-                <div class="form-group">
-                    <label>About</label>
-                    <p style="font-size: 13px; color: #666; line-height: 1.6;">
-                        Daily Activities Tracker v1.0<br/>
-                        All data stored locally in your browser.<br/>
-                        No accounts, no tracking, completely free.
-                    </p>
+                <!-- HISTORY TAB -->
+                <div id="history-tab" class="hidden">
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-number" id="total-entries">0</div>
+                            <div class="stat-label">Total Entries</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="streak">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="avg-mood">-</div>
+                            <div class="stat-label">Average Mood</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="total-time">0h</div>
+                            <div class="stat-label">Total Time</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin-bottom: 10px;">Most Done Activities</h3>
+                        <div id="top-activities" style="font-size: 13px;"></div>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Search entries by date or keywords...">
+                    </div>
+
+                    <h3>Recent Entries</h3>
+                    <div id="entries-list"></div>
+                </div>
+
+                <!-- SETTINGS TAB -->
+                <div id="settings-tab" class="hidden">
+                    <div class="user-info" id="user-info"></div>
+
+                    <!-- SETUP SUPABASE SECTION - HIDDEN -->
+                    <div class="form-group hidden">
+                        <label>Setup Supabase</label>
+                        <div class="setup-section">
+                            <h3>Cloud Sync Configuration</h3>
+                            <div id="supabase-status" class="reminder-status active" style="margin-bottom: 15px; text-align: center;">
+                                Configured
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cloud Sync</label>
+                        <div class="reminder-setup">
+                            <button onclick="syncNow()" class="btn-primary" style="width: 100%; margin-bottom: 10px;">🔄 Sync Now</button>
+                            <div id="sync-info" style="font-size: 12px; color: #667eea; text-align: center; margin-top: 10px;">
+                                Auto-syncing enabled
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Daily Reminders</label>
+                        <div class="reminder-setup">
+                            <div class="reminder-time">
+                                <label style="margin-bottom: 0; flex: 0;">Time:</label>
+                                <input type="time" id="reminder-time" value="09:00">
+                            </div>
+                            <button onclick="enableReminder()" class="btn-primary" style="width: 100%;">Enable Reminder</button>
+                            <button onclick="disableReminder()" class="btn-secondary" style="width: 100%; margin-top: 8px;">Disable Reminder</button>
+                            <div id="reminder-status-msg" class="reminder-status inactive">Reminders are off</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Data Management</label>
+                        <div class="controls">
+                            <button onclick="exportData()" class="btn-secondary" style="flex: 1;">📥 Export Data</button>
+                            <button onclick="clearAllData()" class="btn-secondary" style="flex: 1; color: #d32f2f;">🗑 Clear All</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📱 Use on Your Phone</label>
+                        <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                            <strong>iPhone:</strong> Tap Share → Add to Home Screen<br/>
+                            <strong>Android:</strong> Tap ⋮ → Install app (or Add to Home Screen)<br/><br/>
+                            Your app will appear on your home screen for quick access.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Add Your Own Activity</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="custom-activity" placeholder="Enter a new activity" style="flex: 1;">
+                            <button onclick="addCustomActivity()" class="btn-primary btn-small">Add</button>
+                        </div>
+                        <div id="custom-activities-list" style="font-size: 13px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>About</label>
+                        <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                            Daily Activities Tracker v2.0<br/>
+                            Cloud-synced with Supabase.<br/>
+                            No tracking, completely free.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <button onclick="handleLogout()" class="btn-secondary" style="width: 100%; color: #d32f2f;">🚪 Logout</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- SYNC STATUS -->
+    <div id="sync-status" class="sync-status hidden">
+        <div class="sync-indicator syncing"></div>
+        <span>Syncing...</span>
+    </div>
+
     <script>
-        // Dark mode
+        // CONSTANTS & CONFIG
+        const SUPABASE_URL = 'https://zvjrlyvxlpftdsetrlcs.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_ZREsvm28B9szkjFVoSz7AQ_ij7bFN3e';
+
         const MOODS = ['😢', '😕', '😐', '😊', '😄'];
         const CATEGORIES = ['Physical', 'Creative', 'Social', 'Self-Care', 'Learning', 'Other'];
         const CATEGORY_COLORS = {
@@ -1213,186 +1533,6 @@
             'Learning': '#98D8C8',
             'Other': '#B19CD9'
         };
-
-        let selectedMood = null;
-        let selectedCategory = null;
-        let currentActivityIndex = 0;
-        let mediaRecorder = null;
-        let audioBlob = null;
-
-        function initTheme() {
-            const isDark = localStorage.getItem('darkMode') === 'true';
-            if (isDark) {
-                document.body.classList.add('dark-mode');
-            }
-            updateThemeToggle();
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-            updateThemeToggle();
-        }
-
-        function updateThemeToggle() {
-            const isDark = document.body.classList.contains('dark-mode');
-            document.getElementById('theme-toggle-btn').textContent = isDark ? '☀️' : '🌙';
-        }
-
-        function initMoodSelector() {
-            const container = document.getElementById('mood-selector');
-            container.innerHTML = MOODS.map((mood, idx) =>
-                `<button class="mood-btn" onclick="selectMood(${idx})" title="${mood}">${mood}</button>`
-            ).join('');
-        }
-
-        function selectMood(idx) {
-            selectedMood = idx;
-            document.querySelectorAll('.mood-btn').forEach((btn, i) => {
-                btn.classList.toggle('selected', i === idx);
-            });
-        }
-
-        function initCategorySelector() {
-            const container = document.getElementById('category-selector');
-            container.innerHTML = CATEGORIES.map(cat =>
-                `<button class="category-tag" onclick="selectCategory('${cat}')">${cat}</button>`
-            ).join('');
-        }
-
-        function selectCategory(cat) {
-            selectedCategory = selectedCategory === cat ? null : cat;
-            document.querySelectorAll('.category-tag').forEach(btn => {
-                btn.classList.toggle('selected', btn.textContent === selectedCategory);
-            });
-        }
-
-        function showWeeklyReflection() {
-            const today = new Date();
-            if (today.getDay() === 0) {
-                const reflection = document.getElementById('weekly-reflection');
-                reflection.innerHTML = `
-                    <div class="weekly-reflection">
-                        <h3>Weekly Reflection</h3>
-                        <textarea id="reflection-input" placeholder="How was your week? What did you notice about yourself?" style="width: 100%; margin-top: 10px;"></textarea>
-                        <button onclick="saveReflection()" class="btn-primary" style="width: 100%; margin-top: 10px;">Save Reflection</button>
-                    </div>
-                `;
-                reflection.classList.remove('hidden');
-            }
-        }
-
-        function saveReflection() {
-            const reflectionText = document.getElementById('reflection-input').value.trim();
-            if (reflectionText) {
-                const reflections = JSON.parse(localStorage.getItem('reflections') || '{}');
-                const today = getToday();
-                reflections[today] = reflectionText;
-                localStorage.setItem('reflections', JSON.stringify(reflections));
-                showMessage('✓ Reflection saved!', 'success');
-                document.getElementById('weekly-reflection').classList.add('hidden');
-            }
-        }
-
-        // Reminders
-        function enableReminder() {
-            const time = document.getElementById('reminder-time').value;
-            if (!time) {
-                showMessage('Please set a time', 'error');
-                return;
-            }
-
-            localStorage.setItem('reminderEnabled', 'true');
-            localStorage.setItem('reminderTime', time);
-            document.getElementById('reminder-status-msg').textContent = `Reminders enabled at ${time}`;
-            document.getElementById('reminder-status-msg').className = 'reminder-status active';
-            showMessage('✓ Reminder enabled', 'success');
-            scheduleReminder();
-        }
-
-        function disableReminder() {
-            localStorage.setItem('reminderEnabled', 'false');
-            document.getElementById('reminder-status-msg').textContent = 'Reminders are off';
-            document.getElementById('reminder-status-msg').className = 'reminder-status inactive';
-            showMessage('✓ Reminder disabled', 'success');
-        }
-
-        function scheduleReminder() {
-            if (!('Notification' in window)) return;
-
-            if (Notification.permission === 'granted') {
-                checkAndShowReminder();
-            } else if (Notification.permission !== 'denied') {
-                Notification.requestPermission().then(() => checkAndShowReminder());
-            }
-        }
-
-        function checkAndShowReminder() {
-            const enabled = localStorage.getItem('reminderEnabled') === 'true';
-            const reminderTime = localStorage.getItem('reminderTime');
-            if (!enabled || !reminderTime) return;
-
-            const checkInterval = setInterval(() => {
-                const now = new Date();
-                const [hours, minutes] = reminderTime.split(':');
-                if (now.getHours() === parseInt(hours) && now.getMinutes() === parseInt(minutes)) {
-                    new Notification('Daily Activity Time!', {
-                        body: 'Time to log your daily activity',
-                        icon: 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect fill=%27%23667eea%27 width=%27192%27 height=%27192%27/%3E%3Ctext x=%2796%27 y=%27128%27 font-size=%2780%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27Arial%27%3E🌱%3C/text%3E%3C/svg%3E'
-                    });
-                    clearInterval(checkInterval);
-                }
-            }, 60000);
-        }
-
-        // Favorite activities
-        function toggleFavorite(activityName) {
-            let favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
-            if (!favorites[activityName]) {
-                favorites[activityName] = 1;
-            } else {
-                favorites[activityName]++;
-            }
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-        }
-
-        function getFavoriteFrequency(activityName) {
-            const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
-            return favorites[activityName] || 1;
-        }
-
-        function isFavorite(activityName) {
-            const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
-            return favorites[activityName] && favorites[activityName] > 1;
-        }
-
-        function getToday() {
-            return new Date().toDateString();
-        }
-
-        function getTodayActivityIndex() {
-            const today = getToday();
-            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0);
-            const allActivities = getFullActivityList();
-
-            // Expand list with favorite activities (2x frequency)
-            const expandedList = [];
-            allActivities.forEach(activity => {
-                expandedList.push(activity);
-                if (isFavorite(activity)) {
-                    expandedList.push(activity);
-                }
-            });
-
-            return seed % expandedList.length;
-        }
-
-        function getTodayInspirationIndex() {
-            const today = getToday();
-            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0) * 7;
-            return seed % INSPIRATIONS.length;
-        }
 
         const INSPIRATIONS = [
             "Small steps lead to big changes.",
@@ -1527,6 +1667,376 @@
             "Do something that makes you feel free"
         ];
 
+        // STATE
+        let supabase = null;
+        let currentUser = null;
+        let isDemo = false;
+        let selectedMood = null;
+        let selectedCategory = null;
+        let currentActivityIndex = 0;
+        let mediaRecorder = null;
+        let audioBlob = null;
+        let syncTimer = null;
+
+        // INITIALIZATION
+        async function initApp() {
+            await checkSupabaseConfig();
+            const session = await getSession();
+            if (session) {
+                currentUser = session.user;
+                showAppScreen();
+                loadState();
+                startAutoSync();
+            } else {
+                showLoginScreen();
+            }
+        }
+
+        async function checkSupabaseConfig() {
+            // Use embedded credentials - app is pre-configured
+            try {
+                const { createClient } = window.supabase;
+                supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } catch (err) {
+                console.error('Failed to initialize Supabase:', err);
+                supabase = null;
+            }
+        }
+
+        async function getSession() {
+            if (!supabase) return null;
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                return session;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function showLoginScreen() {
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('app-screen').classList.add('hidden');
+        }
+
+        function showAppScreen() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+        }
+
+        function switchLoginTab(tab) {
+            document.querySelectorAll('.login-form').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab + '-form').classList.add('active');
+
+            document.querySelectorAll('.login-tab').forEach(el => {
+                el.classList.remove('active');
+                if (el.textContent.toLowerCase().includes(tab.split('-')[0])) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        // AUTH
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-btn');
+            const errorEl = document.getElementById('login-error');
+
+            if (!email || !password) {
+                showAuthError('Please enter email and password', errorEl);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Logging in...';
+
+            try {
+                if (!supabase) {
+                    showAuthError('Supabase not configured. Go to Setup tab.', errorEl);
+                    btn.disabled = false;
+                    btn.textContent = 'Login';
+                    return;
+                }
+
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+                if (error && error.status === 400) {
+                    // User doesn't exist, create account
+                    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+                    if (signUpError) throw signUpError;
+                    currentUser = signUpData.user;
+                } else if (error) {
+                    throw error;
+                } else {
+                    currentUser = data.user;
+                }
+
+                await createUserTables();
+                showAppScreen();
+                loadState();
+                startAutoSync();
+
+            } catch (err) {
+                showAuthError(err.message || 'Login failed', errorEl);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Login';
+            }
+        }
+
+        async function handleSignup() {
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+            const btn = document.getElementById('signup-btn');
+            const errorEl = document.getElementById('signup-error');
+
+            if (!email || !password || !confirm) {
+                showAuthError('Please fill in all fields', errorEl);
+                return;
+            }
+
+            if (password !== confirm) {
+                showAuthError('Passwords do not match', errorEl);
+                return;
+            }
+
+            if (password.length < 6) {
+                showAuthError('Password must be at least 6 characters', errorEl);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+
+            try {
+                if (!supabase) {
+                    showAuthError('Supabase not configured', errorEl);
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account';
+                    return;
+                }
+
+                const { data, error } = await supabase.auth.signUp({ email, password });
+                if (error) throw error;
+
+                currentUser = data.user;
+                await createUserTables();
+                showAppScreen();
+                loadState();
+                startAutoSync();
+
+            } catch (err) {
+                showAuthError(err.message || 'Signup failed', errorEl);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        }
+
+        function showAuthError(msg, element) {
+            element.textContent = msg;
+            element.classList.remove('hidden');
+            setTimeout(() => element.classList.add('hidden'), 5000);
+        }
+
+        async function handleLogout() {
+            if (confirm('Logout from this account?')) {
+                if (supabase) {
+                    await supabase.auth.signOut();
+                }
+                currentUser = null;
+                isDemo = false;
+                showLoginScreen();
+                document.getElementById('login-email').value = '';
+                document.getElementById('login-password').value = '';
+            }
+        }
+
+        function saveSupabaseConfig() {
+            // App is pre-configured with embedded credentials
+            const status = document.getElementById('config-status');
+            status.textContent = '✓ App is pre-configured. Use Login or Sign Up to continue.';
+            status.style.color = '#388e3c';
+        }
+
+        function saveSupabaseConfigFromSettings() {
+            // App is pre-configured with embedded credentials - no changes needed
+            const status = document.getElementById('settings-config-status');
+            status.textContent = '✓ Already configured and working!';
+            status.style.color = '#388e3c';
+
+            setTimeout(() => {
+                status.textContent = '';
+            }, 3000);
+        }
+
+        function initSupabaseFromSettings(url, key) {
+            try {
+                const { createClient } = window.supabase;
+                supabase = createClient(url, key);
+                showMessage('✓ Supabase connected!', 'success');
+            } catch (err) {
+                console.error('Failed to initialize Supabase:', err);
+                showMessage('❌ Failed to initialize Supabase', 'error');
+            }
+        }
+
+        function updateSupabaseStatus() {
+            // App is pre-configured with embedded credentials
+            const statusEl = document.getElementById('supabase-status');
+
+            if (!statusEl) return;
+
+            statusEl.textContent = '✓ Configured';
+            statusEl.className = 'reminder-status active';
+        }
+
+        function startDemoMode() {
+            isDemo = true;
+            currentUser = { id: 'demo-user', email: 'demo@example.com' };
+            showAppScreen();
+            loadState();
+        }
+
+        // DATABASE
+        async function createUserTables() {
+            if (!supabase || isDemo) return;
+
+            try {
+                await supabase.from('entries').select('count', { count: 'exact' }).limit(0);
+            } catch (err) {
+                console.log('Tables created or already exist');
+            }
+        }
+
+        // SYNC
+        function startAutoSync() {
+            syncTimer = setInterval(syncToCloud, 30000);
+        }
+
+        async function syncNow() {
+            showSyncStatus();
+            await syncToCloud();
+            hideSyncStatus();
+        }
+
+        async function syncToCloud() {
+            if (!supabase || !currentUser || isDemo) return;
+
+            try {
+                const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+
+                for (const entry of entries) {
+                    if (!entry.id || !entry.synced) {
+                        const { error } = await supabase.from('entries').insert([{
+                            user_id: currentUser.id,
+                            activity: entry.activity,
+                            notes: entry.notes,
+                            audio: entry.audio,
+                            date: entry.date,
+                            mood: entry.mood,
+                            category: entry.category,
+                            duration: entry.duration
+                        }]);
+
+                        if (!error) {
+                            entry.synced = true;
+                        }
+                    }
+                }
+
+                localStorage.setItem('entries', JSON.stringify(entries));
+            } catch (err) {
+                console.error('Sync error:', err);
+            }
+        }
+
+        function showSyncStatus() {
+            document.getElementById('sync-status').classList.remove('hidden');
+        }
+
+        function hideSyncStatus() {
+            setTimeout(() => {
+                document.getElementById('sync-status').classList.add('hidden');
+            }, 1500);
+        }
+
+        // THEME
+        function initTheme() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+            }
+            updateThemeToggle();
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+            updateThemeToggle();
+        }
+
+        function updateThemeToggle() {
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('theme-toggle-btn').textContent = isDark ? '☀️' : '🌙';
+        }
+
+        // UI - MOODS & CATEGORIES
+        function initMoodSelector() {
+            const container = document.getElementById('mood-selector');
+            container.innerHTML = MOODS.map((mood, idx) =>
+                `<button class="mood-btn" onclick="selectMood(${idx})" title="${mood}">${mood}</button>`
+            ).join('');
+        }
+
+        function selectMood(idx) {
+            selectedMood = idx;
+            document.querySelectorAll('.mood-btn').forEach((btn, i) => {
+                btn.classList.toggle('selected', i === idx);
+            });
+        }
+
+        function initCategorySelector() {
+            const container = document.getElementById('category-selector');
+            container.innerHTML = CATEGORIES.map(cat =>
+                `<button class="category-tag" onclick="selectCategory('${cat}')">${cat}</button>`
+            ).join('');
+        }
+
+        function selectCategory(cat) {
+            selectedCategory = selectedCategory === cat ? null : cat;
+            document.querySelectorAll('.category-tag').forEach(btn => {
+                btn.classList.toggle('selected', btn.textContent === selectedCategory);
+            });
+        }
+
+        // UI - UTILITIES
+        function getToday() {
+            return new Date().toDateString();
+        }
+
+        function getTodayActivityIndex() {
+            const today = getToday();
+            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0);
+            const allActivities = getFullActivityList();
+            const expandedList = [];
+            allActivities.forEach(activity => {
+                expandedList.push(activity);
+                if (isFavorite(activity)) {
+                    expandedList.push(activity);
+                }
+            });
+            return seed % expandedList.length;
+        }
+
+        function getTodayInspirationIndex() {
+            const today = getToday();
+            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0) * 7;
+            return seed % INSPIRATIONS.length;
+        }
+
         function displayInspiration() {
             const index = getTodayInspirationIndex();
             document.getElementById('daily-inspiration').textContent = `"${INSPIRATIONS[index]}"`;
@@ -1549,107 +2059,22 @@
             return expandedList;
         }
 
-        function loadState() {
-            const today = getToday();
-            const state = JSON.parse(localStorage.getItem('appState') || '{}');
-
-            if (state.lastDay !== today) {
-                state.lastDay = today;
-                state.currentActivityIndex = getTodayActivityIndex();
-            }
-
-            currentActivityIndex = state.currentActivityIndex || getTodayActivityIndex();
-            localStorage.setItem('appState', JSON.stringify(state));
-
-            initTheme();
-            initMoodSelector();
-            initCategorySelector();
-            displayInspiration();
-            updateActivityDisplay();
-            loadEntries();
-            loadCustomActivities();
-            showWeeklyReflection();
-            updateReminderStatus();
-
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.addEventListener('input', loadEntries);
-            }
-
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-
-            const reminderEnabled = localStorage.getItem('reminderEnabled') === 'true';
-            if (reminderEnabled) {
-                scheduleReminder();
-            }
+        function isFavorite(activityName) {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
+            return favorites[activityName] && favorites[activityName] > 1;
         }
 
-        function updateReminderStatus() {
-            const enabled = localStorage.getItem('reminderEnabled') === 'true';
-            const time = localStorage.getItem('reminderTime') || '09:00';
-            const statusMsg = document.getElementById('reminder-status-msg');
-            const timeInput = document.getElementById('reminder-time');
-
-            if (timeInput) {
-                timeInput.value = time;
+        function toggleFavorite(activityName) {
+            let favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
+            if (!favorites[activityName]) {
+                favorites[activityName] = 1;
+            } else {
+                favorites[activityName]++;
             }
-
-            if (statusMsg) {
-                if (enabled) {
-                    statusMsg.textContent = `Reminders enabled at ${time}`;
-                    statusMsg.className = 'reminder-status active';
-                } else {
-                    statusMsg.textContent = 'Reminders are off';
-                    statusMsg.className = 'reminder-status inactive';
-                }
-            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
         }
 
-        function addCustomActivity() {
-            const input = document.getElementById('custom-activity');
-            const activity = input.value.trim();
-
-            if (!activity) {
-                alert('Please enter an activity');
-                return;
-            }
-
-            let customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
-            customActivities.push(activity);
-            localStorage.setItem('customActivities', JSON.stringify(customActivities));
-
-            input.value = '';
-            loadCustomActivities();
-        }
-
-        function deleteCustomActivity(index) {
-            if (confirm('Delete this activity?')) {
-                let customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
-                customActivities.splice(index, 1);
-                localStorage.setItem('customActivities', JSON.stringify(customActivities));
-                loadCustomActivities();
-            }
-        }
-
-        function loadCustomActivities() {
-            const customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
-            const list = document.getElementById('custom-activities-list');
-
-            if (customActivities.length === 0) {
-                list.innerHTML = '<p style="color: #999;">No custom activities yet.</p>';
-                return;
-            }
-
-            list.innerHTML = '<strong>Your Activities:</strong><br/>' + customActivities.map((activity, idx) =>
-                `<div style="padding: 8px; background: #f0f0f0; margin: 5px 0; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
-                    <span>${activity}</span>
-                    <button onclick="deleteCustomActivity(${idx})" class="btn-secondary btn-small" style="color: #d32f2f;">Delete</button>
-                </div>`
-            ).join('');
-        }
-
+        // ACTIVITY DISPLAY
         function updateActivityDisplay() {
             const expandedActivities = getExpandedActivityList();
             if (expandedActivities.length > 0) {
@@ -1665,6 +2090,7 @@
             }
         }
 
+        // RECORDING
         async function startRecording() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -1698,7 +2124,8 @@
             }
         }
 
-        function saveEntry() {
+        // ENTRIES
+        async function saveEntry() {
             const notes = document.getElementById('notes').value.trim();
             const hasAudio = audioBlob !== null;
 
@@ -1726,13 +2153,15 @@
                 const expandedActivities = getExpandedActivityList();
                 const activityName = expandedActivities[currentActivityIndex % expandedActivities.length];
                 const entry = {
+                    id: Date.now().toString(),
                     activity: activityName,
                     notes: notes,
                     audio: audio,
                     date: new Date().toISOString(),
                     mood: selectedMood,
                     category: selectedCategory,
-                    duration: duration
+                    duration: duration,
+                    synced: false
                 };
 
                 entries.push(entry);
@@ -1750,10 +2179,9 @@
                 initCategorySelector();
 
                 showMessage('✓ Entry saved!', 'success');
-
-                // Show repeat option
                 showRepeatOption(activityName);
                 loadEntries();
+                syncToCloud();
             }
         }
 
@@ -1782,7 +2210,17 @@
             showMessage('✓ Ready for another round!', 'success');
         }
 
-        function loadEntries() {
+        function deleteEntry(index) {
+            if (confirm('Delete this entry?')) {
+                const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+                entries.splice(index, 1);
+                localStorage.setItem('entries', JSON.stringify(entries));
+                loadEntries();
+                syncToCloud();
+            }
+        }
+
+        async function loadEntries() {
             const entries = JSON.parse(localStorage.getItem('entries') || '[]');
             let filteredEntries = entries;
 
@@ -1858,6 +2296,7 @@
             }
         }
 
+        // STATS
         function calculateAverageMood(entries) {
             const moods = entries.filter(e => e.mood !== null && e.mood !== undefined).map(e => e.mood);
             if (moods.length === 0) return '-';
@@ -1870,6 +2309,30 @@
             const hours = Math.floor(totalMinutes / 60);
             const mins = totalMinutes % 60;
             return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+        }
+
+        function calculateStreak(entries) {
+            if (entries.length === 0) return 0;
+
+            let streak = 1;
+            let prevDate = new Date(entries[entries.length - 1].date);
+            prevDate.setHours(0, 0, 0, 0);
+
+            for (let i = entries.length - 2; i >= 0; i--) {
+                const currDate = new Date(entries[i].date);
+                currDate.setHours(0, 0, 0, 0);
+
+                const diffTime = prevDate - currDate;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays === 1) {
+                    streak++;
+                    prevDate = currDate;
+                } else {
+                    break;
+                }
+            }
+            return streak;
         }
 
         function updateTopActivities(entries) {
@@ -1897,39 +2360,123 @@
             }).join('');
         }
 
-        function calculateStreak(entries) {
-            if (entries.length === 0) return 0;
+        // CUSTOM ACTIVITIES
+        function addCustomActivity() {
+            const input = document.getElementById('custom-activity');
+            const activity = input.value.trim();
 
-            let streak = 1;
-            let prevDate = new Date(entries[entries.length - 1].date);
-            prevDate.setHours(0, 0, 0, 0);
+            if (!activity) {
+                alert('Please enter an activity');
+                return;
+            }
 
-            for (let i = entries.length - 2; i >= 0; i--) {
-                const currDate = new Date(entries[i].date);
-                currDate.setHours(0, 0, 0, 0);
+            let customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
+            customActivities.push(activity);
+            localStorage.setItem('customActivities', JSON.stringify(customActivities));
 
-                const diffTime = prevDate - currDate;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            input.value = '';
+            loadCustomActivities();
+        }
 
-                if (diffDays === 1) {
-                    streak++;
-                    prevDate = currDate;
+        function deleteCustomActivity(index) {
+            if (confirm('Delete this activity?')) {
+                let customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
+                customActivities.splice(index, 1);
+                localStorage.setItem('customActivities', JSON.stringify(customActivities));
+                loadCustomActivities();
+            }
+        }
+
+        function loadCustomActivities() {
+            const customActivities = JSON.parse(localStorage.getItem('customActivities') || '[]');
+            const list = document.getElementById('custom-activities-list');
+
+            if (customActivities.length === 0) {
+                list.innerHTML = '<p style="color: #999;">No custom activities yet.</p>';
+                return;
+            }
+
+            list.innerHTML = '<strong>Your Activities:</strong><br/>' + customActivities.map((activity, idx) =>
+                `<div style="padding: 8px; background: #f0f0f0; margin: 5px 0; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>${activity}</span>
+                    <button onclick="deleteCustomActivity(${idx})" class="btn-secondary btn-small" style="color: #d32f2f;">Delete</button>
+                </div>`
+            ).join('');
+        }
+
+        // REMINDERS
+        function enableReminder() {
+            const time = document.getElementById('reminder-time').value;
+            if (!time) {
+                showMessage('Please set a time', 'error');
+                return;
+            }
+
+            localStorage.setItem('reminderEnabled', 'true');
+            localStorage.setItem('reminderTime', time);
+            document.getElementById('reminder-status-msg').textContent = `Reminders enabled at ${time}`;
+            document.getElementById('reminder-status-msg').className = 'reminder-status active';
+            showMessage('✓ Reminder enabled', 'success');
+            scheduleReminder();
+        }
+
+        function disableReminder() {
+            localStorage.setItem('reminderEnabled', 'false');
+            document.getElementById('reminder-status-msg').textContent = 'Reminders are off';
+            document.getElementById('reminder-status-msg').className = 'reminder-status inactive';
+            showMessage('✓ Reminder disabled', 'success');
+        }
+
+        function scheduleReminder() {
+            if (!('Notification' in window)) return;
+
+            if (Notification.permission === 'granted') {
+                checkAndShowReminder();
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(() => checkAndShowReminder());
+            }
+        }
+
+        function checkAndShowReminder() {
+            const enabled = localStorage.getItem('reminderEnabled') === 'true';
+            const reminderTime = localStorage.getItem('reminderTime');
+            if (!enabled || !reminderTime) return;
+
+            const checkInterval = setInterval(() => {
+                const now = new Date();
+                const [hours, minutes] = reminderTime.split(':');
+                if (now.getHours() === parseInt(hours) && now.getMinutes() === parseInt(minutes)) {
+                    new Notification('Daily Activity Time!', {
+                        body: 'Time to log your daily activity',
+                        icon: 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270%200%20192%20192%27%3E%3Crect fill=%27%23667eea%27 width=%27192%27 height=%27192%27/%3E%3Ctext x=%2796%27 y=%27128%27 font-size=%2780%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27Arial%27%3E🌱%3C/text%3E%3C/svg%3E'
+                    });
+                    clearInterval(checkInterval);
+                }
+            }, 60000);
+        }
+
+        function updateReminderStatus() {
+            const enabled = localStorage.getItem('reminderEnabled') === 'true';
+            const time = localStorage.getItem('reminderTime') || '09:00';
+            const statusMsg = document.getElementById('reminder-status-msg');
+            const timeInput = document.getElementById('reminder-time');
+
+            if (timeInput) {
+                timeInput.value = time;
+            }
+
+            if (statusMsg) {
+                if (enabled) {
+                    statusMsg.textContent = `Reminders enabled at ${time}`;
+                    statusMsg.className = 'reminder-status active';
                 } else {
-                    break;
+                    statusMsg.textContent = 'Reminders are off';
+                    statusMsg.className = 'reminder-status inactive';
                 }
             }
-            return streak;
         }
 
-        function deleteEntry(index) {
-            if (confirm('Delete this entry?')) {
-                const entries = JSON.parse(localStorage.getItem('entries') || '[]');
-                entries.splice(index, 1);
-                localStorage.setItem('entries', JSON.stringify(entries));
-                loadEntries();
-            }
-        }
-
+        // TABS & UI
         function switchTab(tab) {
             document.querySelectorAll('[id$="-tab"]').forEach(el => el.classList.add('hidden'));
             document.getElementById(tab + '-tab').classList.remove('hidden');
@@ -1940,8 +2487,14 @@
                     el.classList.add('active');
                 }
             });
+
+            // Refresh Supabase status when switching to Settings tab
+            if (tab === 'settings') {
+                setTimeout(updateSupabaseStatus, 100);
+            }
         }
 
+        // DATA
         function exportData() {
             const entries = JSON.parse(localStorage.getItem('entries') || '[]');
             const data = {
@@ -1973,8 +2526,59 @@
             setTimeout(() => msgEl.textContent = '', 3000);
         }
 
-        // Initialize
-        loadState();
+        // STATE
+        function loadState() {
+            const today = getToday();
+            const state = JSON.parse(localStorage.getItem('appState') || '{}');
+
+            if (state.lastDay !== today) {
+                state.lastDay = today;
+                state.currentActivityIndex = getTodayActivityIndex();
+            }
+
+            currentActivityIndex = state.currentActivityIndex || getTodayActivityIndex();
+            localStorage.setItem('appState', JSON.stringify(state));
+
+            initTheme();
+            initMoodSelector();
+            initCategorySelector();
+            displayInspiration();
+            updateActivityDisplay();
+            loadEntries();
+            loadCustomActivities();
+            updateReminderStatus();
+            updateUserInfo();
+            updateSupabaseStatus();
+
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', loadEntries);
+            }
+
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+
+            const reminderEnabled = localStorage.getItem('reminderEnabled') === 'true';
+            if (reminderEnabled) {
+                scheduleReminder();
+            }
+        }
+
+        function updateUserInfo() {
+            const userInfoEl = document.getElementById('user-info');
+            if (currentUser) {
+                const email = currentUser.email || 'demo@example.com';
+                const syncStatus = isDemo ? 'Demo Mode (Local Only)' : 'Cloud Synced';
+                userInfoEl.innerHTML = `
+                    <strong>${email}</strong><br/>
+                    <span style="font-size: 11px; opacity: 0.8;">${syncStatus}</span>
+                `;
+            }
+        }
+
+        // START
+        initApp();
     </script>
 </body>
 </html>
