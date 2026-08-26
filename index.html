@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Daily Activities">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Daily%20Activities%20Tracker%22,%22short_name%22:%22Activities%22,%22start_url%22:%22./index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22%23667eea%22,%22theme_color%22:%22%23667eea%22,%22scope%22:%22./%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20192%20192%27%3E%3Crect%20fill=%27%23667eea%27%20width=%27192%27%20height=%27192%27/%3E%3Ctext%20x=%2796%27%20y=%27128%27%20font-size=%2780%27%20text-anchor=%27middle%27%20fill=%27white%27%20font-family=%27Arial%27%3E🌱%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%22}]}">
+    <title>Daily Activities Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+                margin: 15px 0;
+            }
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .activity-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .activity-box h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .activity-box p {
+            font-size: 18px;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+
+        .activity-number {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 120px;
+            padding: 16px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 48px;
+            -webkit-touch-callout: none;
+        }
+
+        @media (max-width: 600px) {
+            button {
+                padding: 18px 16px;
+                font-size: 16px;
+                min-height: 52px;
+            }
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 13px;
+            flex: 0;
+            min-width: auto;
+        }
+
+        .recording {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .recording-dot {
+            width: 12px;
+            height: 12px;
+            background: #ff4444;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .history {
+            margin-top: 30px;
+        }
+
+        .history h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .entry {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .entry-date {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .entry-activity {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .entry-text {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .entry-audio {
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 8px;
+            height: 30px;
+        }
+
+        .error {
+            color: #d32f2f;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .success {
+            color: #388e3c;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .no-entries {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .delete-entry {
+            font-size: 12px;
+            color: #d32f2f;
+            cursor: pointer;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .delete-entry:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Daily Activities</h1>
+            <p>Small things that remind you of you</p>
+        </div>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('today')">Today's Activity</button>
+                <button class="tab" onclick="switchTab('history')">History</button>
+                <button class="tab" onclick="switchTab('settings')">Settings</button>
+            </div>
+
+            <!-- TODAY TAB -->
+            <div id="today-tab">
+                <div class="activity-box">
+                    <h2>Today's Activity</h2>
+                    <p id="activity-text"></p>
+                    <div class="activity-number">
+                        <button onclick="nextActivity()" class="btn-secondary btn-small">Next</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Your Notes</label>
+                    <textarea id="notes" placeholder="How did this make you feel? What did you notice?"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Record Your Voice (optional)</label>
+                    <div id="recording-status"></div>
+                    <div class="button-group">
+                        <button id="record-btn" onclick="startRecording()" class="btn-secondary">🎤 Record</button>
+                        <button id="stop-btn" onclick="stopRecording()" class="btn-secondary hidden">⏹ Stop</button>
+                    </div>
+                    <div id="audio-playback"></div>
+                </div>
+
+                <div id="message"></div>
+                <button onclick="saveEntry()" class="btn-primary" style="width: 100%;">Save Entry</button>
+            </div>
+
+            <!-- HISTORY TAB -->
+            <div id="history-tab" class="hidden">
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="total-entries">0</div>
+                        <div class="stat-label">Total Entries</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="streak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                </div>
+
+                <h3>Recent Entries</h3>
+                <div id="entries-list"></div>
+            </div>
+
+            <!-- SETTINGS TAB -->
+            <div id="settings-tab" class="hidden">
+                <div class="form-group">
+                    <label>Data Management</label>
+                    <div class="controls">
+                        <button onclick="exportData()" class="btn-secondary" style="flex: 1;">📥 Export Data</button>
+                        <button onclick="clearAllData()" class="btn-secondary" style="flex: 1; color: #d32f2f;">🗑 Clear All</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>📱 Use on Your Phone</label>
+                    <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                        <strong>iPhone:</strong> Tap Share → Add to Home Screen<br/>
+                        <strong>Android:</strong> Tap ⋮ → Install app (or Add to Home Screen)<br/><br/>
+                        Your app will appear on your home screen for quick access.
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label>About</label>
+                    <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                        Daily Activities Tracker v1.0<br/>
+                        All data stored locally in your browser.<br/>
+                        No accounts, no tracking, completely free.<br/><br/>
+                        Inspired by <a href="https://www.youtube.com/@Un.shaped" target="_blank">un.shaped</a> — small things that remind you of you.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ACTIVITIES = [
+            "Take a walk outside without your phone",
+            "Draw or paint something",
+            "Write in a journal for 10 minutes",
+            "Sit quietly and do nothing for 5 minutes",
+            "Read a chapter from a book",
+            "Cook a simple meal from scratch",
+            "Listen to a song you love",
+            "Call a friend or family member",
+            "Stretch your body mindfully",
+            "Organize one small area of your space",
+            "Take a warm bath or shower",
+            "Make tea and sit with it",
+            "Look at old photos",
+            "Write a letter (even if you don't send it)",
+            "Do something kind for someone",
+            "Sit outside and observe nature",
+            "Practice deep breathing",
+            "Dance to your favorite song",
+            "Watch your favorite movie scene",
+            "Play with a pet",
+            "Do a puzzle or brain teaser",
+            "Practice a hobby you've neglected",
+            "Take photos of things you find beautiful",
+            "Meditate for 10 minutes",
+            "Write down three good things from today",
+            "Sing (even if you think you can't)",
+            "Play a musical instrument",
+            "Rearrange your room",
+            "Spend time in silence",
+            "Do a random act of kindness",
+            "Learn one new thing",
+            "Write a poem",
+            "Play a game you loved as a child",
+            "Make something with your hands",
+            "Watch the sunset or sunrise",
+            "Compliment someone genuinely",
+            "Spend time with a good friend",
+            "Do yoga or gentle exercise",
+            "Write down your thoughts freely",
+            "Explore a new place nearby",
+            "Listen to a podcast or audiobook",
+            "Create a playlist of songs that make you happy",
+            "Do a digital detox for 1 hour",
+            "Volunteer or help someone",
+            "Reflect on something you're grateful for",
+            "Do something you're a little afraid of",
+            "Watch a sunrise or sunset",
+            "Spend time in nature",
+            "Practice being present",
+            "Do a good deed anonymously",
+            "Write down your dreams",
+            "Spend time with loved ones",
+            "Do something that makes you laugh",
+            "Take a cold shower",
+            "Meditate on gratitude",
+            "Do some light gardening",
+            "Read poetry",
+            "Write a story",
+            "Do a workout you enjoy",
+            "Spend time doing absolutely nothing",
+            "Watch clouds",
+            "Listen to music you've never heard",
+            "Do a body scan meditation",
+            "Write down your goals",
+            "Cook a meal for someone else",
+            "Do some stretching",
+            "Spend time at a park or beach",
+            "Write an encouraging letter to yourself",
+            "Do something creative",
+            "Take a long walk",
+            "Have a meaningful conversation",
+            "Do a breathing exercise",
+            "Spend time with your thoughts",
+            "Do something that brings you joy",
+            "Write in a gratitude journal",
+            "Do some gentle yoga",
+            "Spend time looking at art",
+            "Do something for your community",
+            "Write down what you learned today",
+            "Spend time in your favorite place",
+            "Do something that makes you feel alive",
+            "Write a thank you note",
+            "Do something that challenges you",
+            "Spend time with nature",
+            "Do something that makes you feel proud",
+            "Write down your fears and face one",
+            "Do a random act of positivity",
+            "Spend time reflecting",
+            "Do something that brings you peace",
+            "Write a letter to your future self",
+            "Do something that connects you to others",
+            "Spend time in silence and stillness",
+            "Do something that nurtures your soul",
+            "Write down your achievements",
+            "Do something that brings you hope",
+            "Spend time being kind to yourself",
+            "Do something that makes you feel free"
+        ];
+
+        let currentActivityIndex = 0;
+        let mediaRecorder = null;
+        let audioBlob = null;
+
+        function getToday() {
+            return new Date().toDateString();
+        }
+
+        function getTodayActivityIndex() {
+            const today = getToday();
+            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0);
+            return seed % ACTIVITIES.length;
+        }
+
+        function loadState() {
+            const today = getToday();
+            const state = JSON.parse(localStorage.getItem('appState') || '{}');
+
+            if (state.lastDay !== today) {
+                state.lastDay = today;
+                state.currentActivityIndex = getTodayActivityIndex();
+            }
+
+            currentActivityIndex = state.currentActivityIndex || getTodayActivityIndex();
+            localStorage.setItem('appState', JSON.stringify(state));
+            updateActivityDisplay();
+            loadEntries();
+        }
+
+        function updateActivityDisplay() {
+            document.getElementById('activity-text').textContent = ACTIVITIES[currentActivityIndex];
+        }
+
+        function nextActivity() {
+            currentActivityIndex = (currentActivityIndex + 1) % ACTIVITIES.length;
+            updateActivityDisplay();
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                const chunks = [];
+
+                mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(chunks, { type: 'audio/webm' });
+                    const url = URL.createObjectURL(audioBlob);
+                    document.getElementById('audio-playback').innerHTML = `<audio controls src="${url}"></audio>`;
+                    showMessage('✓ Voice recorded', 'success');
+                };
+
+                mediaRecorder.start();
+                document.getElementById('record-btn').classList.add('hidden');
+                document.getElementById('stop-btn').classList.remove('hidden');
+                document.getElementById('recording-status').innerHTML = '<div class="recording"><div class="recording-dot"></div><span>Recording...</span></div>';
+            } catch (err) {
+                showMessage('❌ Microphone access denied', 'error');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                document.getElementById('stop-btn').classList.add('hidden');
+                document.getElementById('record-btn').classList.remove('hidden');
+                document.getElementById('recording-status').innerHTML = '';
+            }
+        }
+
+        function saveEntry() {
+            const notes = document.getElementById('notes').value.trim();
+            const hasAudio = audioBlob !== null;
+
+            if (!notes && !hasAudio) {
+                showMessage('⚠️ Please add a note or record something', 'error');
+                return;
+            }
+
+            const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+
+            let audioBase64 = null;
+            if (audioBlob) {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    audioBase64 = reader.result;
+                    saveEntryWithAudio(notes, audioBase64);
+                };
+                reader.readAsDataURL(audioBlob);
+            } else {
+                saveEntryWithAudio(notes, null);
+            }
+
+            function saveEntryWithAudio(notes, audio) {
+                const entry = {
+                    activity: ACTIVITIES[currentActivityIndex],
+                    notes: notes,
+                    audio: audio,
+                    date: new Date().toISOString()
+                };
+
+                entries.push(entry);
+                localStorage.setItem('entries', JSON.stringify(entries));
+
+                document.getElementById('notes').value = '';
+                audioBlob = null;
+                document.getElementById('audio-playback').innerHTML = '';
+                showMessage('✓ Entry saved!', 'success');
+                loadEntries();
+            }
+        }
+
+        function loadEntries() {
+            const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+            const entriesList = document.getElementById('entries-list');
+
+            if (entries.length === 0) {
+                entriesList.innerHTML = '<div class="no-entries">No entries yet. Start by completing an activity!</div>';
+                document.getElementById('total-entries').textContent = '0';
+                document.getElementById('streak').textContent = '0';
+                return;
+            }
+
+            document.getElementById('total-entries').textContent = entries.length;
+            document.getElementById('streak').textContent = calculateStreak(entries);
+
+            entriesList.innerHTML = entries
+                .reverse()
+                .map((entry, idx) => {
+                    const date = new Date(entry.date);
+                    const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                    const audioHtml = entry.audio ? `<audio controls src="${entry.audio}"></audio>` : '';
+
+                    return `
+                        <div class="entry">
+                            <div class="entry-date">${dateStr}</div>
+                            <div class="entry-activity">${entry.activity}</div>
+                            <div class="entry-text">${entry.notes}</div>
+                            ${audioHtml}
+                            <div class="delete-entry" onclick="deleteEntry(${entries.length - 1 - idx})">Delete</div>
+                        </div>
+                    `;
+                })
+                .join('');
+        }
+
+        function calculateStreak(entries) {
+            if (entries.length === 0) return 0;
+
+            let streak = 1;
+            let prevDate = new Date(entries[entries.length - 1].date);
+            prevDate.setHours(0, 0, 0, 0);
+
+            for (let i = entries.length - 2; i >= 0; i--) {
+                const currDate = new Date(entries[i].date);
+                currDate.setHours(0, 0, 0, 0);
+
+                const diffTime = prevDate - currDate;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays === 1) {
+                    streak++;
+                    prevDate = currDate;
+                } else {
+                    break;
+                }
+            }
+            return streak;
+        }
+
+        function deleteEntry(index) {
+            if (confirm('Delete this entry?')) {
+                const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+                entries.splice(index, 1);
+                localStorage.setItem('entries', JSON.stringify(entries));
+                loadEntries();
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('[id$="-tab"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tab + '-tab').classList.remove('hidden');
+
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function exportData() {
+            const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+            const data = {
+                exported: new Date().toISOString(),
+                entries: entries
+            };
+
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `activities-export-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        function clearAllData() {
+            if (confirm('Delete ALL entries? This cannot be undone.')) {
+                localStorage.removeItem('entries');
+                loadEntries();
+                showMessage('✓ All data cleared', 'success');
+            }
+        }
+
+        function showMessage(text, type) {
+            const msgEl = document.getElementById('message');
+            msgEl.textContent = text;
+            msgEl.className = type;
+            setTimeout(() => msgEl.textContent = '', 3000);
+        }
+
+        // Initialize
+        loadState();
+    </script>
+</body>
+</html>
