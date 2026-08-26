@@ -340,7 +340,8 @@
     <div class="container">
         <div class="header">
             <h1>Daily Activities</h1>
-            <p>Small things that remind you of you</p>
+            <p id="daily-inspiration"></p>
+            <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Small things that remind you of you</p>
         </div>
 
         <div class="card">
@@ -429,6 +430,39 @@
     </div>
 
     <script>
+        const INSPIRATIONS = [
+            "Small steps lead to big changes.",
+            "Today is a chance to remember who you are.",
+            "You are enough, exactly as you are.",
+            "Peace comes from within.",
+            "Every moment is a fresh start.",
+            "Your presence matters.",
+            "Breathe. You're doing better than you think.",
+            "Growth happens in the quiet moments.",
+            "Be kind to yourself today.",
+            "You don't need permission to be yourself.",
+            "The world needs what only you can offer.",
+            "Rest is productive.",
+            "Your feelings are valid.",
+            "You're stronger than yesterday.",
+            "Progress, not perfection.",
+            "Slow is still moving forward.",
+            "You deserve the good things.",
+            "Your story isn't over yet.",
+            "Small acts of self-care add up.",
+            "You are worthy of love and belonging.",
+            "Today, choose what feels right for you.",
+            "Every day is a gift.",
+            "You're allowed to change your mind.",
+            "Healing looks different for everyone.",
+            "Your voice matters.",
+            "You've survived 100% of your worst days.",
+            "Be present. That's enough.",
+            "Your imperfections make you human.",
+            "You are becoming who you need to be.",
+            "The best time to start is now."
+        ];
+
         const ACTIVITIES = [
             "Take a walk outside without your phone",
             "Draw or paint something",
@@ -543,6 +577,17 @@
             return seed % ACTIVITIES.length;
         }
 
+        function getTodayInspirationIndex() {
+            const today = getToday();
+            const seed = today.split(' ').reduce((a, s) => a + s.charCodeAt(0), 0) * 7;
+            return seed % INSPIRATIONS.length;
+        }
+
+        function displayInspiration() {
+            const index = getTodayInspirationIndex();
+            document.getElementById('daily-inspiration').textContent = `"${INSPIRATIONS[index]}"`;
+        }
+
         function loadState() {
             const today = getToday();
             const state = JSON.parse(localStorage.getItem('appState') || '{}');
@@ -554,6 +599,7 @@
 
             currentActivityIndex = state.currentActivityIndex || getTodayActivityIndex();
             localStorage.setItem('appState', JSON.stringify(state));
+            displayInspiration();
             updateActivityDisplay();
             loadEntries();
         }
